@@ -51,16 +51,7 @@ $all_users = DB::query("SELECT id, name FROM users WHERE id != %i", $user_id);
     button:hover { background: #218838; }
 
     /* Modal */
-    .modal {
-        display: none; 
-        position: fixed; 
-        z-index: 999; 
-        left: 0; top: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.5);
-        justify-content: center; 
-        align-items: center;
-    }
+ */
     .modal-content {
         background: #fff; 
         padding: 25px; 
