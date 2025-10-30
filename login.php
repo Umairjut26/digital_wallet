@@ -46,662 +46,180 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login | Professional Form</title>
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <title>Login | Digital Ease Pay</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Animate.css -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-  <!-- SweetAlert2 -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-  <style>
-    :root {
-      --primary: #2c3e50;
-      --primary-light: #34495e;
-      --secondary: #3498db;
-      --accent: #1abc9c;
-      --light: #ecf0f1;
-      --dark: #2c3e50;
-      --gray: #95a5a6;
-      --success: #2ecc71;
-      --danger: #e74c3c;
-      --border: #bdc3c7;
-      --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    
-    * {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      overflow-x: hidden;
-    }
-    
-    .login-container {
-      max-width: 420px;
-      width: 100%;
-      background: white;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
-      opacity: 0;
-      transform: translateY(30px) scale(0.95);
-      animation: formEntrance 0.8s ease forwards;
-    }
-    
-    @keyframes formEntrance {
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-    
-    .brand-section {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-      padding: 40px 30px;
-      color: white;
-      position: relative;
-      overflow: hidden;
-      text-align: center;
-    }
-    
-    .brand-section::before {
-      content: '';
-      position: absolute;
-      width: 300px;
-      height: 300px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      top: -150px;
-      right: -100px;
-      animation: float 6s ease-in-out infinite;
-    }
-    
-    .brand-section::after {
-      content: '';
-      position: absolute;
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1);
-      bottom: -100px;
-      left: -80px;
-      animation: float 8s ease-in-out infinite;
-    }
-    
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-20px); }
-    }
-    
-    .logo {
-      font-size: 4rem;
-      margin-bottom: 15px;
-      z-index: 1;
-      position: relative;
-      display: inline-block;
-      animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-    
-    .brand-section h3 {
-      font-weight: 600;
-      margin-bottom: 10px;
-      z-index: 1;
-      position: relative;
-    }
-    
-    .brand-section p {
-      opacity: 0.9;
-      z-index: 1;
-      position: relative;
-    }
-    
-    .form-section {
-      padding: 40px 30px;
-      position: relative;
-    }
-    
-    .form-section h2 {
-      color: var(--primary);
-      font-weight: 700;
-      margin-bottom: 5px;
-      text-align: center;
-    }
-    
-    .form-section p.lead {
-      color: var(--gray);
-      margin-bottom: 30px;
-      text-align: center;
-    }
-    
-    .form-group {
-      margin-bottom: 25px;
-      position: relative;
-    }
-    
-    .form-control {
-      border-radius: 12px;
-      padding: 18px 20px 18px 50px;
-      border: 2px solid var(--border);
-      transition: var(--transition);
-      font-size: 16px;
-      height: auto;
-      background: #f8f9fa;
-    }
-    
-    .form-control:focus {
-      border-color: var(--secondary);
-      box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.15);
-      background: white;
-      transform: translateY(-2px);
-    }
-    
-    .input-icon {
-      position: absolute;
-      left: 18px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--gray);
-      z-index: 10;
-      font-size: 20px;
-      transition: var(--transition);
-    }
-    
-    .form-control:focus + .input-icon {
-      color: var(--secondary);
-      transform: translateY(-50%) scale(1.1);
-    }
-    
-    .btn-login {
-      background: linear-gradient(to right, var(--secondary), var(--accent));
-      border: none;
-      padding: 16px 30px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 16px;
-      transition: var(--transition);
-      width: 100%;
-      margin-top: 10px;
-      color: white;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .btn-login::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: 0.5s;
-    }
-    
-    .btn-login:hover::before {
-      left: 100%;
-    }
-    
-    .btn-login:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
-    }
-    
-    .register-link {
-      text-align: center;
-      margin-top: 25px;
-      color: var(--gray);
-    }
-    
-    .register-link a {
-      color: var(--secondary);
-      text-decoration: none;
-      font-weight: 500;
-      transition: var(--transition);
-      position: relative;
-    }
-    
-    .register-link a::after {
-      content: '';
-      position: absolute;
-      width: 0;
-      height: 2px;
-      bottom: -2px;
-      left: 0;
-      background-color: var(--accent);
-      transition: var(--transition);
-    }
-    
-    .register-link a:hover {
-      color: var(--accent);
-    }
-    
-    .register-link a:hover::after {
-      width: 100%;
-    }
-    
-    .alert {
-      border-radius: 12px;
-      border: none;
-      padding: 15px 20px;
-      margin-bottom: 25px;
-    }
-    
-    .password-toggle {
-      position: absolute;
-      right: 18px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      color: var(--gray);
-      z-index: 10;
-      cursor: pointer;
-      font-size: 18px;
-      transition: var(--transition);
-    }
-    
-    .password-toggle:hover {
-      color: var(--secondary);
-      transform: translateY(-50%) scale(1.1);
-    }
-    
-    .form-check-input:checked {
-      background-color: var(--secondary);
-      border-color: var(--secondary);
-    }
-    
-    .forgot-link {
-      color: var(--secondary);
-      text-decoration: none;
-      font-size: 14px;
-      transition: var(--transition);
-      position: relative;
-    }
-    
-    .forgot-link::after {
-      content: '';
-      position: absolute;
-      width: 0;
-      height: 1px;
-      bottom: -2px;
-      left: 0;
-      background-color: var(--accent);
-      transition: var(--transition);
-    }
-    
-    .forgot-link:hover {
-      color: var(--accent);
-    }
-    
-    .forgot-link:hover::after {
-      width: 100%;
-    }
-    
-    .options-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 25px;
-    }
-    
-    /* Floating label effect */
-    .floating-label {
-      position: absolute;
-      top: 18px;
-      left: 50px;
-      color: var(--gray);
-      font-size: 16px;
-      pointer-events: none;
-      transition: var(--transition);
-      background: #f8f9fa;
-      padding: 0 5px;
-    }
-    
-    .form-control:focus ~ .floating-label,
-    .form-control:not(:placeholder-shown) ~ .floating-label {
-      top: -10px;
-      left: 45px;
-      font-size: 12px;
-      color: var(--secondary);
-      background: white;
-      z-index: 5;
-    }
-    
-    /* Social login buttons */
-    .social-login {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-top: 25px;
-    }
-    
-    .social-btn {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 20px;
-      transition: var(--transition);
-      border: none;
-    }
-    
-    .social-btn:hover {
-      transform: translateY(-3px) scale(1.1);
-    }
-    
-    .social-google {
-      background: #DB4437;
-    }
-    
-    .social-facebook {
-      background: #4267B2;
-    }
-    
-    .social-twitter {
-      background: #1DA1F2;
-    }
-    
-    /* Divider */
-    .divider {
-      display: flex;
-      align-items: center;
-      margin: 25px 0;
-    }
-    
-    .divider::before,
-    .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-    
-    .divider span {
-      padding: 0 15px;
-      color: var(--gray);
-      font-size: 14px;
-    }
-    
-    /* Input animation classes */
-    .animate-input-1 {
-      opacity: 0;
-      transform: translateX(-20px);
-      animation: slideInRight 0.6s ease forwards 0.3s;
-    }
-    
-    .animate-input-2 {
-      opacity: 0;
-      transform: translateX(-20px);
-      animation: slideInRight 0.6s ease forwards 0.5s;
-    }
-    
-    .animate-options {
-      opacity: 0;
-      animation: fadeIn 0.6s ease forwards 0.7s;
-    }
-    
-    .animate-button {
-      opacity: 0;
-      transform: translateY(20px);
-      animation: slideInUp 0.6s ease forwards 0.9s;
-    }
-    
-    .animate-links {
-      opacity: 0;
-      animation: fadeIn 0.6s ease forwards 1.1s;
-    }
-    
-    @keyframes slideInRight {
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-    
-    @keyframes slideInUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-      }
-    }
-  </style>
 </head>
-<body>
-  <div class="login-container">
-    <!-- Brand Section -->
-    <div class="brand-section">
-      <div class="logo">
-        <i class="fas fa-user-shield"></i>
-      </div>
-      <h3>Welcome Back</h3>
-      <p>Sign in to continue your journey with us</p>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <!-- Header -->
+        <div class="text-center p-8 border-b border-gray-100">
+            <i class="fas fa-wallet text-4xl text-blue-600 mb-4"></i>
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h1>
+            <p class="text-gray-600">Login to your Digital Wallet</p>
+        </div>
+        
+        <!-- Form Container -->
+        <div class="p-6">
+            <!-- Error Messages -->
+            <?php if (!empty($errors)): ?>
+                <div class="bg-red-50 text-red-600 p-4 rounded-lg border border-red-200 mb-6">
+                    <ul class="list-disc list-inside space-y-1">
+                        <?php foreach ($errors as $error): ?>
+                            <li class="text-sm"><?php echo htmlspecialchars($error); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+            
+            <form method="POST" id="loginForm" class="space-y-6">
+                <!-- Email Field -->
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-envelope text-gray-400"></i>
+                        </div>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>"
+                            class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+                            placeholder="Enter your email address"
+                        >
+                    </div>
+                </div>
+                
+                <!-- Password Field -->
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+                            placeholder="Enter your password"
+                        >
+                        <button 
+                            type="button" 
+                            id="togglePassword" 
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors duration-300"
+                        >
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Login Button -->
+                <button 
+                    type="submit" 
+                    class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 flex items-center justify-center space-x-2"
+                >
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Login</span>
+                </button>
+            </form>
+            
+            <!-- Register Link -->
+            <div class="text-center mt-6">
+                <p class="text-gray-600 text-sm">
+                    Don't have an account? 
+                    <a href="register.php" class="text-blue-600 font-semibold hover:text-blue-700 hover:underline transition-all duration-300">
+                        Register
+                    </a>
+                </p>
+            </div>
+        </div>
     </div>
-    
-    <!-- Form Section -->
-    <div class="form-section">
-      <h2 class="animate__animated animate__fadeIn">Secure Login</h2>
-      <p class="lead animate__animated animate__fadeIn animate__delay-1s">Enter your credentials to access your account</p>
-      
-      <!-- Error Messages -->
-      <?php if (!empty($errors)): ?>
-        <div class="alert alert-danger animate__animated animate__shakeX" role="alert">
-          <ul class="mb-0">
-            <?php foreach ($errors as $error): ?>
-              <li><?php echo htmlspecialchars($error); ?></li>
-            <?php endforeach; ?>
-          </ul>
-        </div>
-      <?php endif; ?>
-      
-      <form method="POST" id="loginForm">
-        <!-- Email Field -->
-        <div class="form-group animate-input-1">
-          <i class="fas fa-envelope input-icon"></i>
-          <input type="email" class="form-control" id="email" name="email" placeholder=" " value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
-          <label class="floating-label">Email Address</label>
-        </div>
-        
-        <!-- Password Field -->
-        <div class="form-group animate-input-2">
-          <i class="fas fa-lock input-icon"></i>
-          <input type="password" class="form-control" id="password" name="password" placeholder=" ">
-          <label class="floating-label">Password</label>
-          <button type="button" class="password-toggle" id="togglePassword">
-            <i class="fas fa-eye"></i>
-          </button>
-        </div>
-        
-        <!-- Remember Me & Forgot Password -->
-        <div class="options-row animate-options">
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="rememberCheck" name="rememberCheck">
-            <label class="form-check-label" for="rememberCheck">
-              Remember me
-            </label>
-          </div>
-          <a href="#" class="forgot-link">Forgot password?</a>
-        </div>
-        
-        <!-- Submit Button -->
-        <button type="submit" class="btn btn-login animate-button">
-          <i class="fas fa-sign-in-alt me-2"></i>Sign In
-        </button>
-      </form>
-      
-      <!-- Divider -->
-      <div class="divider animate-links">
-        <span>or continue with</span>
-      </div>
-      
-      <!-- Social Login -->
-      <div class="social-login animate-links">
-        <button class="social-btn social-google">
-          <i class="fab fa-google"></i>
-        </button>
-        <button class="social-btn social-facebook">
-          <i class="fab fa-facebook-f"></i>
-        </button>
-        <button class="social-btn social-twitter">
-          <i class="fab fa-twitter"></i>
-        </button>
-      </div>
-      
-      <!-- Register Link -->
-      <div class="register-link animate-links">
-        Don't have an account? <a href="register.php">Register here</a>
-      </div>
-    </div>
-  </div>
 
-  <!-- Bootstrap JS Bundle with Popper -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- SweetAlert2 -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-  
-  <script>
-    // Password toggle functionality
-    document.getElementById('togglePassword').addEventListener('click', function() {
-      const passwordInput = document.getElementById('password');
-      const icon = this.querySelector('i');
-      
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-      } else {
-        passwordInput.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-      }
-    });
-    
-    // Form validation and error display
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      // Clear previous errors
-      const errorAlert = document.querySelector('.alert.alert-danger');
-      if (errorAlert) {
-        errorAlert.style.display = 'none';
-      }
-      
-      // Get form values
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      
-      // Simple validation (for demo purposes)
-      const errors = [];
-      
-      if (!email) {
-        errors.push('Email is required');
-      } else if (!isValidEmail(email)) {
-        errors.push('Please enter a valid email address');
-      }
-      
-      if (!password) {
-        errors.push('Password is required');
-      }
-      
-      // Display errors if any
-      if (errors.length > 0) {
-        e.preventDefault();
-        
-        // Create error alert if it doesn't exist
-        let errorAlert = document.querySelector('.alert.alert-danger');
-        if (!errorAlert) {
-          errorAlert = document.createElement('div');
-          errorAlert.className = 'alert alert-danger animate__animated animate__shakeX';
-          errorAlert.setAttribute('role', 'alert');
-          
-          const errorList = document.createElement('ul');
-          errorList.className = 'mb-0';
-          errorAlert.appendChild(errorList);
-          
-          const formSection = document.querySelector('.form-section');
-          formSection.insertBefore(errorAlert, document.getElementById('loginForm'));
-        }
-        
-        // Update error list
-        const errorList = errorAlert.querySelector('ul');
-        errorList.innerHTML = '';
-        errors.forEach(error => {
-          const li = document.createElement('li');
-          li.textContent = error;
-          errorList.appendChild(li);
+    <script>
+        // Password visibility toggle
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const icon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
         });
         
-        // Show error alert
-        errorAlert.style.display = 'block';
-        errorAlert.classList.add('animate__shakeX');
-        setTimeout(() => {
-          errorAlert.classList.remove('animate__shakeX');
-        }, 1000);
-      } else {
-        // Show SweetAlert for successful login
-        e.preventDefault();
-        
-        // Simulate successful login for demo
-        Swal.fire({
-          title: 'Login Successful!',
-          text: 'Welcome back! You will be redirected to dashboard in 2 seconds.',
-          icon: 'success',
-          showConfirmButton: false,
-          timer: 2000,
-          timerProgressBar: true,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-          willClose: () => {
-            // In real application, you would submit the form here
-            document.getElementById('loginForm').submit();
-          }
+        // Form validation
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const errors = [];
+            
+            if (!email) {
+                errors.push('Email address is required');
+            } else if (!isValidEmail(email)) {
+                errors.push('Please enter a valid email address');
+            }
+            
+            if (!password) {
+                errors.push('Password is required');
+            }
+            
+            if (errors.length > 0) {
+                e.preventDefault();
+                
+                // Remove existing error message
+                const existingError = document.querySelector('.bg-red-50');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Create error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'bg-red-50 text-red-600 p-4 rounded-lg border border-red-200 mb-6';
+                
+                const errorList = document.createElement('ul');
+                errorList.className = 'list-disc list-inside space-y-1';
+                
+                errors.forEach(error => {
+                    const li = document.createElement('li');
+                    li.className = 'text-sm';
+                    li.textContent = error;
+                    errorList.appendChild(li);
+                });
+                
+                errorDiv.appendChild(errorList);
+                
+                // Insert error message
+                const formContainer = document.querySelector('.p-6');
+                const form = document.getElementById('loginForm');
+                formContainer.insertBefore(errorDiv, form);
+            }
         });
-      }
-    });
-    
-    // Email validation function
-    function isValidEmail(email) {
-      const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      return re.test(String(email).toLowerCase());
-    }
-    
-    // Add focus animations to form inputs
-    document.querySelectorAll('.form-control').forEach(input => {
-      input.addEventListener('focus', function() {
-        this.parentElement.classList.add('focused');
-      });
-      
-      input.addEventListener('blur', function() {
-        if (!this.value) {
-          this.parentElement.classList.remove('focused');
+        
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
         }
-      });
-    });
-  </script>
+        
+        // Clear error when user starts typing
+        document.getElementById('email').addEventListener('input', function() {
+            const errorMessage = document.querySelector('.bg-red-50');
+            if (errorMessage) errorMessage.remove();
+        });
+        
+        document.getElementById('password').addEventListener('input', function() {
+            const errorMessage = document.querySelector('.bg-red-50');
+            if (errorMessage) errorMessage.remove();
+        });
+    </script>
 </body>
 </html>
