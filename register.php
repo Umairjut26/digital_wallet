@@ -15,9 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validation
     if ($name === '') $errors[] = "Name is required.";
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Valid email is required.";
-    if (strlen($mobile) !== 10 || !ctype_digit($mobile)) {
-        $errors[] = "Valid 10-digit mobile number is required.";
-    }
+    if (strlen($mobile) !== 10 || !ctype_digit($mobile)) $errors[] = "Valid 10-digit mobile number is required.";
     if (strlen($password) < 6) $errors[] = "Password must be at least 6 characters.";
     if ($password !== $confirm) $errors[] = "Passwords do not match.";
 
@@ -27,6 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = "Email or mobile number already registered.";
         } else {
             $hash = password_hash($password, PASSWORD_DEFAULT);
+
+            // Insert user without account number first
             DB::insert('users', [
                 'name' => $name,
                 'email' => $email,
@@ -36,10 +36,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $user_id = DB::insertId();
 
-            // Create wallet for this user
+            // Generate unique account number
+            $account_number = 'AC' . rand(10000000, 99999999);
+
+            // Update user's account number
+            DB::update('users', ['account_number' => $account_number], "id=%i", $user_id);
+
+            // Create wallet for this user with starting balance
             DB::insert('wallets', [
                 'user_id' => $user_id,
-                'balance' => 1000.00
+                'balance' => 1000.00,
+                'account_number' => $account_number,
+                'account_name' => $name,
+                'currency' => 'USD'
             ]);
 
             $_SESSION['user_id'] = $user_id;
@@ -204,139 +213,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         document.getElementById('togglePassword').addEventListener('click', function() {
             const passwordInput = document.getElementById('password');
             const icon = this.querySelector('i');
-            
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
                 passwordInput.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         });
-        
+
         document.getElementById('toggleConfirmPassword').addEventListener('click', function() {
             const confirmInput = document.getElementById('confirm');
             const icon = this.querySelector('i');
-            
             if (confirmInput.type === 'password') {
                 confirmInput.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
             } else {
                 confirmInput.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
             }
         });
-        
-        // Mobile number formatting (only allow numbers)
-        document.getElementById('mobile').addEventListener('input', function(e) {
+
+        document.getElementById('mobile').addEventListener('input', function() {
             this.value = this.value.replace(/\D/g, '');
         });
-        
-        // Form validation
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const mobile = document.getElementById('mobile').value;
-            const password = document.getElementById('password').value;
-            const confirm = document.getElementById('confirm').value;
-            
-            const errors = [];
-            
-            if (!name) {
-                errors.push('Full name is required');
-            }
-            
-            if (!email) {
-                errors.push('Email address is required');
-            } else if (!isValidEmail(email)) {
-                errors.push('Please enter a valid email address');
-            }
-            
-            if (!mobile) {
-                errors.push('Mobile number is required');
-            } else if (!/^\d{10}$/.test(mobile)) {
-                errors.push('Mobile number must be exactly 10 digits');
-            }
-            
-            if (!password) {
-                errors.push('Password is required');
-            } else if (password.length < 6) {
-                errors.push('Password must be at least 6 characters long');
-            }
-            
-            if (!confirm) {
-                errors.push('Please confirm your password');
-            } else if (password !== confirm) {
-                errors.push('Passwords do not match');
-            }
-            
-            if (errors.length > 0) {
-                e.preventDefault();
-                
-                const errorMessage = document.getElementById('errorMessage');
-                if (!errorMessage) {
-                    const errorDiv = document.createElement('div');
-                    errorDiv.id = 'errorMessage';
-                    errorDiv.className = 'bg-red-50 text-red-700 p-3 rounded-lg mb-4 text-sm';
-                    
-                    const errorList = document.createElement('ul');
-                    errorList.className = 'list-disc list-inside';
-                    
-                    errors.forEach(error => {
-                        const li = document.createElement('li');
-                        li.textContent = error;
-                        errorList.appendChild(li);
-                    });
-                    
-                    errorDiv.appendChild(errorList);
-                    
-                    const formContainer = document.querySelector('.px-8.py-6');
-                    const successMessage = document.querySelector('#successMessage');
-                    const existingError = document.querySelector('#errorMessage');
-                    
-                    if (successMessage) {
-                        formContainer.insertBefore(errorDiv, successMessage.nextSibling);
-                    } else if (existingError) {
-                        existingError.replaceWith(errorDiv);
-                    } else {
-                        formContainer.insertBefore(errorDiv, document.getElementById('registerForm'));
-                    }
-                } else {
-                    const errorList = errorMessage.querySelector('ul');
-                    errorList.innerHTML = '';
-                    errors.forEach(error => {
-                        const li = document.createElement('li');
-                        li.textContent = error;
-                        errorList.appendChild(li);
-                    });
-                    errorMessage.classList.remove('hidden');
-                }
-            }
-        });
-        
-        function isValidEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
-        
-        // Clear error when user starts typing
-        const inputs = ['name', 'email', 'mobile', 'password', 'confirm'];
-        inputs.forEach(inputId => {
-            document.getElementById(inputId).addEventListener('input', function() {
-                const errorMessage = document.getElementById('errorMessage');
-                if (errorMessage) errorMessage.classList.add('hidden');
-            });
-        });
-        
-        // Redirect on success
+
         <?php if ($registration_success): ?>
-            setTimeout(function() {
-                window.location.href = 'login.php';
-            }, 2000);
+            setTimeout(() => window.location.href = 'login.php', 2000);
         <?php endif; ?>
     </script>
 </body>
