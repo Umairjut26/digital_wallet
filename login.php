@@ -3,6 +3,7 @@ session_start();
 require 'config.php'; // MeekroDB configuration file
 
 $errors = [];
+$login_success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
@@ -31,9 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ]);
             }
 
-            // ✅ Redirect to dashboard
-            header("Location: wallet.php");
-            exit;
+            $login_success = true;
 
         } else {
             $errors[] = "Incorrect email or password.";
@@ -51,6 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -219,6 +220,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         document.getElementById('password').addEventListener('input', function() {
             const errorMessage = document.querySelector('.bg-red-50');
             if (errorMessage) errorMessage.remove();
+        });
+
+        // SweetAlert for successful login
+        <?php if ($login_success): ?>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Login Successful!',
+                text: 'Welcome back to Digital Ease Pay',
+                timer: 2000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                willClose: () => {
+                    window.location.href = 'wallet.php';
+                }
+            });
+        });
+        <?php endif; ?>
+
+        // SweetAlert for form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (email && password && isValidEmail(email)) {
+                // Show loading alert
+                e.preventDefault();
+                
+                Swal.fire({
+                    title: 'Logging in...',
+                    text: 'Please wait while we authenticate your account',
+                    icon: 'info',
+                    timer: 2000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    },
+                    willClose: () => {
+                        // After 2 seconds, submit the form
+                        document.getElementById('loginForm').submit();
+                    }
+                });
+            }
         });
     </script>
 </body>

@@ -66,6 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Register | Digital Ease Pay</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 </head>
 <body class="bg-gray-50 min-h-screen flex items-center justify-center p-5">
     <div class="w-full max-w-lg bg-white rounded-xl shadow-lg overflow-hidden">
@@ -78,24 +80,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         <!-- Form Container -->
         <div class="px-8 py-6">
-            <!-- Success Message -->
-            <?php if ($registration_success): ?>
-                <div id="successMessage" class="bg-green-50 text-green-700 p-3 rounded-lg mb-4 text-sm">
-                    Registration successful! Redirecting to login...
-                </div>
-            <?php endif; ?>
-            
-            <!-- Error Messages -->
-            <?php if (!empty($errors)): ?>
-                <div id="errorMessage" class="bg-red-50 text-red-700 p-3 rounded-lg mb-4 text-sm">
-                    <ul class="list-disc list-inside">
-                        <?php foreach ($errors as $error): ?>
-                            <li><?php echo htmlspecialchars($error); ?></li>
-                        <?php endforeach; ?>
-                    </ul>
-                </div>
-            <?php endif; ?>
-            
             <form method="POST" id="registerForm" class="space-y-5">
                 <!-- Name Field -->
                 <div>
@@ -208,6 +192,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
     </div>
 
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    
     <script>
         // Password visibility toggle
         document.getElementById('togglePassword').addEventListener('click', function() {
@@ -238,8 +225,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             this.value = this.value.replace(/\D/g, '');
         });
 
+        // SweetAlert notifications
         <?php if ($registration_success): ?>
-            setTimeout(() => window.location.href = 'login.php', 2000);
+            Swal.fire({
+                icon: 'success',
+                title: 'Registration Successful!',
+                text: 'Your account has been created successfully. Redirecting to login...',
+                timer: 2000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                willClose: () => {
+                    window.location.href = 'login.php';
+                }
+            });
+        <?php elseif (!empty($errors)): ?>
+            Swal.fire({
+                icon: 'error',
+                title: 'Registration Failed',
+                html: `<?php echo implode('<br>', array_map('htmlspecialchars', $errors)); ?>`,
+                timer: 2000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
         <?php endif; ?>
     </script>
 </body>

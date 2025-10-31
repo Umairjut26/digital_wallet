@@ -69,6 +69,21 @@ $total_expenses = DB::queryFirstField("
     SELECT COALESCE(SUM(amount), 0) FROM transactions 
     WHERE sender_id=%i AND status='completed'
 ", $user_id) ?: 0;
+
+// Monthly stats for insights
+$current_month_income = DB::queryFirstField("
+    SELECT COALESCE(SUM(amount), 0) FROM transactions 
+    WHERE receiver_id=%i AND status='completed' 
+    AND MONTH(created_at) = MONTH(CURRENT_DATE())
+    AND YEAR(created_at) = YEAR(CURRENT_DATE())
+", $user_id) ?: 0;
+
+$current_month_expenses = DB::queryFirstField("
+    SELECT COALESCE(SUM(amount), 0) FROM transactions 
+    WHERE sender_id=%i AND status='completed'
+    AND MONTH(created_at) = MONTH(CURRENT_DATE())
+    AND YEAR(created_at) = YEAR(CURRENT_DATE())
+", $user_id) ?: 0;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -78,6 +93,8 @@ $total_expenses = DB::queryFirstField("
     <title>DigitalPay - Professional Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js for analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -96,6 +113,7 @@ $total_expenses = DB::queryFirstField("
                         'fade-in': 'fadeIn 0.5s ease-in-out',
                         'slide-up': 'slideUp 0.3s ease-out',
                         'pulse-soft': 'pulseSoft 2s infinite',
+                        'bounce-soft': 'bounceSoft 2s infinite',
                     },
                     keyframes: {
                         fadeIn: {
@@ -109,6 +127,16 @@ $total_expenses = DB::queryFirstField("
                         pulseSoft: {
                             '0%, 100%': { opacity: '1' },
                             '50%': { opacity: '0.8' },
+                        },
+                        bounceSoft: {
+                            '0%, 100%': { 
+                                transform: 'translateY(0)',
+                                animationTimingFunction: 'cubic-bezier(0.8, 0, 1, 1)'
+                            },
+                            '50%': {
+                                transform: 'translateY(-5px)',
+                                animationTimingFunction: 'cubic-bezier(0, 0, 0.2, 1)'
+                            }
                         }
                     }
                 }
@@ -132,73 +160,94 @@ $total_expenses = DB::queryFirstField("
         .sidebar-gradient {
             background: linear-gradient(180deg, #1F2937 0%, #374151 100%);
         }
-        .sidebar-collapsed {
-            width: 80px !important;
-        }
-        .sidebar-expanded {
-            width: 256px !important;
-        }
-        .main-content-expanded {
-            margin-left: 256px !important;
-        }
-        .main-content-collapsed {
-            margin-left: 80px !important;
-        }
         .transition-width {
             transition: width 0.3s ease-in-out;
         }
         .transition-margin {
             transition: margin-left 0.3s ease-in-out;
         }
+        .gradient-text {
+            background: linear-gradient(135deg, #0052FF 0%, #4D7CFF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Mobile sidebar styles */
+        @media (max-width: 768px) {
+            #sidebar {
+                transform: translateX(-100%);
+                width: 280px !important;
+            }
+            #sidebar.mobile-open {
+                transform: translateX(0);
+            }
+            #mainContent {
+                margin-left: 0 !important;
+            }
+            #mobileOverlay {
+                display: none;
+            }
+            #mobileOverlay.mobile-open {
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 39;
+            }
+        }
+        
+        /* Desktop sidebar hide/show */
+        .sidebar-hidden {
+            transform: translateX(-100%) !important;
+        }
+        .main-content-full {
+            margin-left: 0 !important;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen">
+    <!-- Mobile Overlay -->
+    <div id="mobileOverlay" class="md:hidden"></div>
+
     <!-- Main Container -->
     <div class="flex min-h-screen">
         <!-- Sidebar -->
-        <div id="sidebar" class="sidebar-gradient text-white fixed h-full z-40 sidebar-expanded transition-width">
+        <div id="sidebar" class="sidebar-gradient text-white fixed h-full z-40 w-64 transition-width md:transform-none">
             <div class="p-4 h-full flex flex-col">
-                <!-- Logo & Toggle -->
-                <div class="flex items-center justify-between mb-8">
-                    <div class="flex items-center space-x-3" id="logo-full">
-                        <div class="w-10 h-10 bg-gradient-to-r from-primary to-primary-light rounded-xl flex items-center justify-center shadow-md">
-                            <i class="fas fa-wallet text-white text-lg"></i>
-                        </div>
-                        <span class="text-xl font-bold whitespace-nowrap">DigitalPay</span>
+                <!-- Logo -->
+                <div class="flex items-center space-x-3 mb-8">
+                    <div class="w-10 h-10 bg-gradient-to-r from-primary to-primary-light rounded-xl flex items-center justify-center shadow-md">
+                        <i class="fas fa-wallet text-white text-lg"></i>
                     </div>
-                    <div class="w-10 h-10 flex items-center justify-center" id="logo-mini" style="display: none;">
-                        <div class="w-10 h-10 bg-gradient-to-r from-primary to-primary-light rounded-xl flex items-center justify-center shadow-md">
-                            <i class="fas fa-wallet text-white text-lg"></i>
-                        </div>
-                    </div>
-                    <button id="sidebarToggle" class="text-gray-300 hover:text-white p-2 rounded-lg hover:bg-white hover:bg-opacity-10">
-                        <i class="fas fa-bars text-lg"></i>
-                    </button>
+                    <span class="text-xl font-bold whitespace-nowrap">DigitalPay</span>
                 </div>
                 
                 <!-- Navigation -->
                 <nav class="space-y-2 flex-1">
-                    <a href="#" class="flex items-center space-x-3 bg-primary bg-opacity-20 px-4 py-3 rounded-xl font-medium group">
+                    <a href="dashboard.php" class="flex items-center space-x-3 bg-primary bg-opacity-20 px-4 py-3 rounded-xl font-medium group">
                         <i class="fas fa-home text-lg w-6 text-center"></i>
-                        <span class="whitespace-nowrap group-hover:opacity-100 transition-opacity" id="nav-text">Dashboard</span>
+                        <span class="whitespace-nowrap group-hover:opacity-100 transition-opacity">Dashboard</span>
                     </a>
                     <a href="transactions.php" class="flex items-center space-x-3 px-4 py-3 rounded-xl font-medium hover:bg-white hover:bg-opacity-10 transition-all duration-300 group">
                         <i class="fas fa-exchange-alt text-lg w-6 text-center"></i>
-                        <span class="whitespace-nowrap group-hover:opacity-100 transition-opacity" id="nav-text">Transactions</span>
+                        <span class="whitespace-nowrap group-hover:opacity-100 transition-opacity">Transactions</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl font-medium hover:bg-white hover:bg-opacity-10 transition-all duration-300 group">
+                    <a href="analytics.php" class="flex items-center space-x-3 px-4 py-3 rounded-xl font-medium hover:bg-white hover:bg-opacity-10 transition-all duration-300 group">
                         <i class="fas fa-chart-line text-lg w-6 text-center"></i>
-                        <span class="whitespace-nowrap group-hover:opacity-100 transition-opacity" id="nav-text">Analytics</span>
+                        <span class="whitespace-nowrap group-hover:opacity-100 transition-opacity">Analytics</span>
                     </a>
-                    <a href="#" class="flex items-center space-x-3 px-4 py-3 rounded-xl font-medium hover:bg-white hover:bg-opacity-10 transition-all duration-300 group">
+                    <a href="settings.php" class="flex items-center space-x-3 px-4 py-3 rounded-xl font-medium hover:bg-white hover:bg-opacity-10 transition-all duration-300 group">
                         <i class="fas fa-cog text-lg w-6 text-center"></i>
-                        <span class="whitespace-nowrap group-hover:opacity-100 transition-opacity" id="nav-text">Settings</span>
+                        <span class="whitespace-nowrap group-hover:opacity-100 transition-opacity">Settings</span>
                     </a>
                 </nav>
                 
                 <!-- User Profile -->
                 <div class="border-t border-gray-600 pt-4">
-                    <div class="flex items-center space-x-3" id="user-info-full">
+                    <div class="flex items-center space-x-3">
                         <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-semibold">
                             <?php 
                                 $initials = '';
@@ -216,30 +265,28 @@ $total_expenses = DB::queryFirstField("
                             <p class="text-xs text-gray-300 truncate"><?php echo htmlspecialchars($user['email'] ?? 'user@example.com'); ?></p>
                         </div>
                     </div>
-                    <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-semibold mx-auto" id="user-info-mini" style="display: none;">
-                        <?php 
-                            $initials = '';
-                            if (isset($user['name'])) {
-                                $nameParts = explode(' ', $user['name']);
-                                foreach ($nameParts as $part) {
-                                    $initials .= strtoupper(substr($part, 0, 1));
-                                }
-                            }
-                            echo substr($initials, 0, 2);
-                        ?>
-                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div id="mainContent" class="flex-1 main-content-expanded transition-margin">
+        <div id="mainContent" class="flex-1 ml-64 transition-margin">
             <!-- Top Header -->
             <header class="bg-white shadow-soft border-b border-gray-200 sticky top-0 z-30">
                 <div class="flex justify-between items-center px-6 py-4">
                     <div class="flex items-center space-x-4">
+                        <!-- Mobile hamburger menu -->
+                        <button id="mobileSidebarToggle" class="md:hidden text-gray-600 hover:text-primary transition-colors duration-300">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        
+                        <!-- Desktop sidebar toggle -->
+                        <button id="desktopSidebarToggle" class="hidden md:flex text-gray-600 hover:text-primary transition-colors duration-300">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        
                         <div>
-                            <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+                            <h1 class="text-2xl font-bold text-gray-900">Financial Dashboard</h1>
                             <p class="text-gray-500 text-sm">Welcome back, <?php echo htmlspecialchars($user['name'] ?? 'User'); ?>! 👋</p>
                         </div>
                     </div>
@@ -330,7 +377,7 @@ $total_expenses = DB::queryFirstField("
                     </div>
                 </div>
 
-                <!-- Action Cards & Recent Transactions -->
+                <!-- Action Cards & Financial Insights -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Left Column - Quick Actions -->
                     <div class="lg:col-span-1 space-y-6">
@@ -339,7 +386,7 @@ $total_expenses = DB::queryFirstField("
                             <h3 class="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
                             <div class="grid grid-cols-2 gap-4">
                                 <button id="openSendModal" 
-                                        class="bg-primary text-white p-4 rounded-xl font-semibold hover:bg-primary-dark transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md">
+                                        class="bg-primary text-white p-4 rounded-xl font-semibold hover:bg-primary-dark transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md animate-pulse-soft">
                                     <i class="fas fa-paper-plane text-xl"></i>
                                     <span class="text-sm">Send Money</span>
                                 </button>
@@ -364,7 +411,7 @@ $total_expenses = DB::queryFirstField("
                             <div class="space-y-4">
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-600">Account Number</span>
-                                    <span class="font-mono text-sm"><?php echo htmlspecialchars($wallet['account_number'] ?? 'N/A'); ?></span>
+                                    <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded"><?php echo htmlspecialchars($wallet['account_number'] ?? 'N/A'); ?></span>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-600">Member Since</span>
@@ -372,76 +419,173 @@ $total_expenses = DB::queryFirstField("
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-gray-600">Status</span>
-                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Verified</span>
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">Verified</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">This Month</span>
+                                    <span class="font-medium text-green-600">+$<?php echo number_format($current_month_income - $current_month_expenses, 2); ?></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Financial Tips -->
+                        <div class="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-2xl p-6 shadow-card relative overflow-hidden">
+                            <div class="absolute top-0 right-0 -mt-8 -mr-8 w-16 h-16 rounded-full bg-white bg-opacity-10"></div>
+                            <div class="relative z-10">
+                                <div class="flex items-center space-x-2 mb-3">
+                                    <i class="fas fa-lightbulb text-yellow-300"></i>
+                                    <h3 class="font-bold">Smart Tip</h3>
+                                </div>
+                                <p class="text-sm opacity-90 mb-4">
+                                    "Save 20% of every transaction for future investments. Small savings lead to big wealth!"
+                                </p>
+                                <div class="flex items-center text-xs opacity-80">
+                                    <i class="fas fa-clock mr-1"></i>
+                                    <span>Updated daily</span>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right Column - Recent Transactions -->
+                    <!-- Right Column - Financial Insights & Analytics -->
                     <div class="lg:col-span-2">
                         <div class="bg-white rounded-2xl shadow-card border border-gray-100 overflow-hidden">
-                            <!-- Transaction Header -->
+                            <!-- Header -->
                             <div class="border-b border-gray-200 px-6 py-4">
                                 <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
                                     <div>
-                                        <h2 class="text-xl font-bold text-gray-900">Recent Transactions</h2>
-                                        <p class="text-gray-500 text-sm mt-1">Your latest financial activities</p>
+                                        <h2 class="text-xl font-bold text-gray-900">Financial Insights</h2>
+                                        <p class="text-gray-500 text-sm mt-1">Smart analytics for your money management</p>
                                     </div>
-                                    <button onclick="window.location.href='transactions.php'" 
+                                    <button onclick="window.location.href='analytics.php'" 
                                             class="bg-gray-100 text-gray-700 border border-gray-300 px-4 py-2 rounded-lg font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 flex items-center space-x-2 shadow-soft mt-3 sm:mt-0">
-                                        <i class="fas fa-list"></i>
-                                        <span>View All</span>
+                                        <i class="fas fa-chart-bar"></i>
+                                        <span>Detailed Analytics</span>
                                     </button>
                                 </div>
                             </div>
 
-                            <!-- Transaction List -->
-                            <div class="divide-y divide-gray-200">
-                                <?php if (count($recent_transactions) > 0): ?>
-                                    <?php foreach ($recent_transactions as $t): ?>
-                                        <div class="px-6 py-4 hover:bg-gray-50 transition-colors duration-200">
-                                            <div class="flex items-center justify-between">
-                                                <div class="flex items-center space-x-4">
-                                                    <div class="w-12 h-12 rounded-xl flex items-center justify-center <?php echo $t['type'] == 'sent' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'; ?>">
-                                                        <i class="fas fa-<?php echo $t['type'] == 'sent' ? 'arrow-up' : 'arrow-down'; ?>"></i>
-                                                    </div>
-                                                    <div>
-                                                        <h4 class="font-semibold text-gray-900">
-                                                            <?php 
-                                                                if ($t['type'] == 'sent') {
-                                                                    echo htmlspecialchars($t['receiver_name']);
-                                                                } else {
-                                                                    echo htmlspecialchars($t['sender_name']);
-                                                                }
-                                                            ?>
-                                                        </h4>
-                                                        <p class="text-sm text-gray-500"><?php echo date('M j, Y g:i A', strtotime($t['created_at'])); ?></p>
-                                                    </div>
-                                                </div>
-                                                <div class="text-right">
-                                                    <div class="font-bold text-lg <?php echo $t['type'] == 'sent' ? 'text-red-600' : 'text-green-600'; ?>">
-                                                        <?php echo $t['type'] == 'sent' ? '-' : '+'; ?>$<?php echo number_format($t['amount'], 2); ?>
-                                                    </div>
-                                                    <span class="text-xs px-2 py-1 rounded-full <?php echo $t['type'] == 'sent' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'; ?>">
-                                                        <?php echo ucfirst($t['type']); ?>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <div class="px-6 py-12 text-center">
-                                        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                            <i class="fas fa-exchange-alt text-gray-400 text-xl"></i>
-                                        </div>
-                                        <p class="text-gray-500 text-lg font-medium">No transactions yet</p>
-                                        <p class="text-gray-400 mt-1">Send or receive money to get started!</p>
-                                        <button id="openSendModal2" class="mt-4 bg-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-primary-dark transition-all duration-300">
-                                            Make Your First Transaction
-                                        </button>
+                            <!-- Financial Metrics Grid -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+                                <!-- Spending Pattern -->
+                                <div class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-4 border border-blue-200">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h3 class="font-semibold text-gray-900">Spending Pattern</h3>
+                                        <i class="fas fa-chart-pie text-blue-600"></i>
                                     </div>
-                                <?php endif; ?>
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-600">Essential Expenses</span>
+                                            <span class="font-medium text-gray-900">65%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-blue-600 h-2 rounded-full" style="width: 65%"></div>
+                                        </div>
+                                        
+                                        <div class="flex justify-between items-center mt-3">
+                                            <span class="text-sm text-gray-600">Entertainment</span>
+                                            <span class="font-medium text-gray-900">20%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-green-500 h-2 rounded-full" style="width: 20%"></div>
+                                        </div>
+                                        
+                                        <div class="flex justify-between items-center mt-3">
+                                            <span class="text-sm text-gray-600">Savings</span>
+                                            <span class="font-medium text-gray-900">15%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-purple-500 h-2 rounded-full" style="width: 15%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Monthly Budget -->
+                                <div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-4 border border-green-200">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h3 class="font-semibold text-gray-900">Monthly Budget</h3>
+                                        <i class="fas fa-wallet text-green-600"></i>
+                                    </div>
+                                    <div class="text-center mb-4">
+                                        <div class="text-2xl font-bold text-gray-900">$<?php echo number_format($balance * 0.7, 2); ?></div>
+                                        <p class="text-sm text-gray-600">of $<?php echo number_format($balance, 2); ?> available</p>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
+                                        <div class="bg-green-500 h-3 rounded-full" style="width: 70%"></div>
+                                    </div>
+                                    <div class="flex justify-between text-xs text-gray-600">
+                                        <span>Spent: 30%</span>
+                                        <span>Left: 70%</span>
+                                    </div>
+                                </div>
+
+                                <!-- Quick Stats -->
+                                <div class="bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-4 border border-purple-200">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h3 class="font-semibold text-gray-900">This Month</h3>
+                                        <i class="fas fa-calendar-alt text-purple-600"></i>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-600">Money In</span>
+                                            <span class="font-medium text-green-600">+$<?php echo number_format($current_month_income, 2); ?></span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-600">Money Out</span>
+                                            <span class="font-medium text-red-600">-$<?php echo number_format($current_month_expenses, 2); ?></span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-600">Net Flow</span>
+                                            <span class="font-medium <?php echo ($current_month_income - $current_month_expenses) >= 0 ? 'text-green-600' : 'text-red-600'; ?>">
+                                                $<?php echo number_format($current_month_income - $current_month_expenses, 2); ?>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Financial Health -->
+                                <div class="bg-gradient-to-br from-orange-50 to-amber-100 rounded-xl p-4 border border-orange-200">
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h3 class="font-semibold text-gray-900">Financial Health</h3>
+                                        <i class="fas fa-heartbeat text-orange-600"></i>
+                                    </div>
+                                    <div class="text-center mb-3">
+                                        <div class="text-2xl font-bold text-green-600">Good</div>
+                                        <p class="text-xs text-gray-600">Your finances are in great shape!</p>
+                                    </div>
+                                    <div class="flex justify-between text-xs text-gray-600">
+                                        <span>Savings Rate</span>
+                                        <span class="font-medium">25%</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+                                        <div class="bg-green-500 h-2 rounded-full" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Actionable Insights -->
+                            <div class="border-t border-gray-200 px-6 py-4 bg-gray-50">
+                                <h4 class="font-semibold text-gray-900 mb-3">Actionable Insights</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-primary transition-all duration-300 cursor-pointer">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
+                                            <i class="fas fa-piggy-bank"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-900">Save $<?php echo number_format($balance * 0.2, 2); ?> this month</p>
+                                            <p class="text-xs text-gray-600">Based on your spending pattern</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-primary transition-all duration-300 cursor-pointer">
+                                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-900">Income increased by 15%</p>
+                                            <p class="text-xs text-gray-600">Compared to last month</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -528,78 +672,59 @@ $total_expenses = DB::queryFirstField("
     </div>
 
     <script>
-        // Sidebar toggle functionality
+        // Desktop sidebar toggle functionality
+        const desktopSidebarToggle = document.getElementById('desktopSidebarToggle');
         const sidebar = document.getElementById('sidebar');
         const mainContent = document.getElementById('mainContent');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const navTexts = document.querySelectorAll('#nav-text');
-        const logoFull = document.getElementById('logo-full');
-        const logoMini = document.getElementById('logo-mini');
-        const userInfoFull = document.getElementById('user-info-full');
-        const userInfoMini = document.getElementById('user-info-mini');
-
-        let isSidebarCollapsed = false;
-
-        function toggleSidebar() {
-            isSidebarCollapsed = !isSidebarCollapsed;
-            
-            if (isSidebarCollapsed) {
-                // Collapse sidebar
-                sidebar.classList.remove('sidebar-expanded');
-                sidebar.classList.add('sidebar-collapsed');
-                mainContent.classList.remove('main-content-expanded');
-                mainContent.classList.add('main-content-collapsed');
+        
+        let isDesktopSidebarHidden = false;
+        
+        if (desktopSidebarToggle) {
+            desktopSidebarToggle.addEventListener('click', () => {
+                isDesktopSidebarHidden = !isDesktopSidebarHidden;
                 
-                // Hide text elements
-                navTexts.forEach(text => {
-                    text.style.opacity = '0';
-                    text.style.display = 'none';
-                });
-                
-                // Switch logos
-                logoFull.style.display = 'none';
-                logoMini.style.display = 'block';
-                
-                // Switch user info
-                userInfoFull.style.display = 'none';
-                userInfoMini.style.display = 'block';
-                
-            } else {
-                // Expand sidebar
-                sidebar.classList.remove('sidebar-collapsed');
-                sidebar.classList.add('sidebar-expanded');
-                mainContent.classList.remove('main-content-collapsed');
-                mainContent.classList.add('main-content-expanded');
-                
-                // Show text elements
-                navTexts.forEach(text => {
-                    text.style.display = 'block';
-                    setTimeout(() => {
-                        text.style.opacity = '1';
-                    }, 50);
-                });
-                
-                // Switch logos
-                logoFull.style.display = 'flex';
-                logoMini.style.display = 'none';
-                
-                // Switch user info
-                userInfoFull.style.display = 'flex';
-                userInfoMini.style.display = 'none';
-            }
+                if (isDesktopSidebarHidden) {
+                    // Hide sidebar completely
+                    sidebar.classList.add('sidebar-hidden');
+                    mainContent.classList.add('main-content-full');
+                } else {
+                    // Show sidebar
+                    sidebar.classList.remove('sidebar-hidden');
+                    mainContent.classList.remove('main-content-full');
+                }
+            });
         }
 
-        sidebarToggle.addEventListener('click', toggleSidebar);
+        // Mobile sidebar toggle functionality
+        const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        
+        if (mobileSidebarToggle) {
+            mobileSidebarToggle.addEventListener('click', () => {
+                sidebar.classList.add('mobile-open');
+                mobileOverlay.classList.add('mobile-open');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling when sidebar is open
+            });
+        }
+        
+        if (mobileOverlay) {
+            mobileOverlay.addEventListener('click', closeMobileSidebarFunc);
+        }
+        
+        function closeMobileSidebarFunc() {
+            sidebar.classList.remove('mobile-open');
+            mobileOverlay.classList.remove('mobile-open');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
 
         // Modal functionality
         const openModalBtn = document.getElementById('openSendModal');
-        const openModalBtn2 = document.getElementById('openSendModal2');
         const closeModalBtn = document.getElementById('closeModal');
         const modal = document.getElementById('sendModal');
         
-        [openModalBtn, openModalBtn2].forEach(btn => {
-            if (btn) btn.addEventListener('click', () => modal.classList.remove('hidden'));
-        });
+        if (openModalBtn) {
+            openModalBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+        }
         
         closeModalBtn.addEventListener('click', () => {
             modal.classList.add('hidden');
@@ -660,6 +785,41 @@ $total_expenses = DB::queryFirstField("
                 message.innerHTML = `<div class="bg-red-50 text-red-600 p-3 rounded-lg border border-red-200 text-center">Error: ${err}</div>`;
             }
         });
+
+        // Add hover effects to actionable insights
+        document.querySelectorAll('.cursor-pointer').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '';
+            });
+        });
+
+        // Animate numbers on page load
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                element.textContent = value.toLocaleString();
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Animate transaction count
+        // const transactionCount = document.querySelector('.text-2xl.font-bold.text-gray-900');
+        // if (transactionCount) {
+        //     const count = parseInt(transactionCount.textContent);
+        //     animateValue(transactionCount, 0 , count, 2000);
+        // }
     </script>
 
 </body>
