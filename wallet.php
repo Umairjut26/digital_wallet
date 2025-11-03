@@ -347,38 +347,46 @@ $spending_categories = [
                     
                     <!-- Bill and Payment -->
                     <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
-                        <i class="fas fa-file-invoice-dollar text-xl text-green-500"></i>
-                        <span class="text-xs text-gray-700">Bill & Payment</span>
-                    </button>
+    <!-- Plus icon upar -->
+    <i class="fas fa-plus text-green-500 text-lg mb-1"></i>
+    
+    <!-- Pehla icon (invoice) -->
+    <!-- <i class="fas fa-file-invoice-dollar text-xl text-green-500"></i> -->
+    
+    <!-- Text -->
+    <span class="text-xs text-gray-700">Add Money</span>
+</button>
+
                     
                     <!-- Load & Packages -->
                     <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
                         <i class="fas fa-mobile-alt text-xl text-purple-500"></i>
-                        <span class="text-xs text-gray-700">Load & Packages</span>
+                        <span class="text-xs text-gray-700">Mobile Top Up</span>
                     </button>
                     
                     <!-- Banking & Finance -->
                     <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
-                        <i class="fas fa-university text-xl text-blue-500"></i>
-                        <span class="text-xs text-gray-700">Banking & Finance</span>
+                        <i class="fas fa-qrcode text-xl text-blue-500"></i>
+                        <span class="text-xs text-gray-700">QuickPay</span>
                     </button>
                     
                     <!-- Marketplace -->
                     <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
-                        <i class="fas fa-store text-xl text-orange-500"></i>
-                        <span class="text-xs text-gray-700">Marketplace</span>
+                        <i class="fas fa-file-invoice text-xl text-orange-500"></i>
+                        <span class="text-xs text-gray-700">Bills</span>
                     </button>
                     
                     <!-- Govt Payments -->
                     <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
-                        <i class="fas fa-landmark text-xl text-red-500"></i>
-                        <span class="text-xs text-gray-700">Govt Payments</span>
+                        <i class="fas fa-hand-holding-dollar text-xl text-red-500"></i>
+
+                        <span class="text-xs text-gray-700">Loan</span>
                     </button>
                     
                     <!-- Travel -->
                     <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
-                        <i class="fas fa-plane text-xl text-teal-500"></i>
-                        <span class="text-xs text-gray-700">Travel</span>
+<i class="fas fa-graduation-cap text-xl text-teal-500"></i>
+                        <span class="text-xs text-gray-700">Education</span>
                     </button>
                     
                     <!-- Other Payment & Services -->
@@ -420,9 +428,9 @@ $spending_categories = [
                         <!-- Agent with Location Icon -->
                         <div class="flex flex-col items-center space-y-1">
                             <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-green-600 relative">
-                                <i class="fas fa-map-marker-alt text-sm"></i>
+                                <i class="fas fa-wallet text-sm"></i>
                             </div>
-                            <span class="text-xs text-gray-700 font-medium">Agent</span>
+                            <span class="text-xs text-gray-700 font-medium">MyWallet</span>
                         </div>
                         
                         <!-- QR Code -->
@@ -436,9 +444,10 @@ $spending_categories = [
                         <!-- Favourites -->
                         <div class="flex flex-col items-center space-y-1">
                             <div class="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center text-yellow-600">
-                                <i class="fas fa-star text-sm"></i>
+                                <i class="fas fa-exchange-alt text-sm"></i>
+
                             </div>
-                            <span class="text-xs text-gray-700 font-medium">Favourites</span>
+                            <span class="text-xs text-gray-700 font-medium">Transactions</span>
                         </div>
                         
                         <!-- Promotions -->
