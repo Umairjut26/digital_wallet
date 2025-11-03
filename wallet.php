@@ -84,6 +84,23 @@ $current_month_expenses = DB::queryFirstField("
     AND MONTH(created_at) = MONTH(CURRENT_DATE())
     AND YEAR(created_at) = YEAR(CURRENT_DATE())
 ", $user_id) ?: 0;
+
+// Calculate financial health metrics
+$savings_rate = $total_income > 0 ? (($total_income - $total_expenses) / $total_income) * 100 : 0;
+$financial_health_score = min(100, max(0, 60 + ($savings_rate * 0.4)));
+
+// Monthly budget (assuming $2000 monthly budget for demo)
+$monthly_budget = 2000;
+$budget_utilization = $current_month_expenses > 0 ? ($current_month_expenses / $monthly_budget) * 100 : 0;
+
+// Spending pattern (categorization for demo)
+$spending_categories = [
+    'Shopping' => 35,
+    'Food & Dining' => 25,
+    'Bills & Utilities' => 20,
+    'Entertainment' => 12,
+    'Transport' => 8
+];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -170,6 +187,20 @@ $current_month_expenses = DB::queryFirstField("
             background: linear-gradient(135deg, #0052FF 0%, #4D7CFF 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+        
+        /* Progress bar styles */
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #E5E7EB;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease-in-out;
         }
         
         /* Mobile sidebar styles */
@@ -522,30 +553,236 @@ $current_month_expenses = DB::queryFirstField("
                     </div>
                 </div>
 
-                <!-- Quick Actions Only -->
-                <div class="flex justify-center">
-                    <div class="w-full max-w-2xl">
-                        <!-- Quick Actions -->
+                <!-- Financial Insights and Quick Actions Row -->
+                <div class="flex flex-col lg:flex-row gap-6 mb-8 mr-5 ml-5">
+                    <!-- Financial Insights Section (Left - 2/3 width) -->
+                    <div class="w-full lg:w-2/3">
+                        <h2 class="text-xl font-bold text-gray-900 mb-4">Financial Insights</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Spending Pattern Card -->
+                            <div class="bg-white rounded-2xl p-6 shadow-card border border-gray-100 hover:shadow-lg transition-all duration-300">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-bold text-gray-900">Spending Pattern</h3>
+                                    <div class="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600">
+                                        <i class="fas fa-chart-pie"></i>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <?php foreach($spending_categories as $category => $percentage): ?>
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-600"><?php echo $category; ?></span>
+                                            <span class="text-sm font-medium text-gray-900"><?php echo $percentage; ?>%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill bg-purple-500" style="width: <?php echo $percentage; ?>%"></div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            </div>
+
+                            <!-- Monthly Budget Card -->
+                            <div class="bg-white rounded-2xl p-6 shadow-card border border-gray-100 hover:shadow-lg transition-all duration-300">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-bold text-gray-900">Monthly Budget</h3>
+                                    <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                                        <i class="fas fa-wallet"></i>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-sm text-gray-600">Budget Utilization</span>
+                                        <span class="text-sm font-medium text-gray-900"><?php echo number_format($budget_utilization, 1); ?>%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill <?php echo $budget_utilization > 80 ? 'bg-red-500' : ($budget_utilization > 60 ? 'bg-yellow-500' : 'bg-green-500'); ?>" 
+                                             style="width: <?php echo min($budget_utilization, 100); ?>%"></div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="text-gray-600">Remaining: $<?php echo number_format(max(0, $monthly_budget - $current_month_expenses), 2); ?></span>
+                                    <span class="text-gray-600">Total: $<?php echo number_format($monthly_budget, 2); ?></span>
+                                </div>
+                            </div>
+
+                            <!-- This Month Card -->
+                            <div class="bg-white rounded-2xl p-6 shadow-card border border-gray-100 hover:shadow-lg transition-all duration-300">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-bold text-gray-900">This Month</h3>
+                                    <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-green-600">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <p class="text-sm text-gray-600">Income</p>
+                                            <p class="text-lg font-bold text-green-600">$<?php echo number_format($current_month_income, 2); ?></p>
+                                        </div>
+                                        <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-green-600">
+                                            <i class="fas fa-arrow-down"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <p class="text-sm text-gray-600">Expenses</p>
+                                            <p class="text-lg font-bold text-red-600">$<?php echo number_format($current_month_expenses, 2); ?></p>
+                                        </div>
+                                        <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center text-red-600">
+                                            <i class="fas fa-arrow-up"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-2 border-t border-gray-200">
+                                        <div>
+                                            <p class="text-sm text-gray-600">Net</p>
+                                            <p class="text-lg font-bold <?php echo ($current_month_income - $current_month_expenses) >= 0 ? 'text-green-600' : 'text-red-600'; ?>">
+                                                $<?php echo number_format($current_month_income - $current_month_expenses, 2); ?>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Financial Health Card -->
+                            <div class="bg-white rounded-2xl p-6 shadow-card border border-gray-100 hover:shadow-lg transition-all duration-300">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-bold text-gray-900">Financial Health</h3>
+                                    <div class="w-10 h-10 bg-<?php echo $financial_health_score >= 80 ? 'green' : ($financial_health_score >= 60 ? 'yellow' : 'red'); ?>-50 rounded-xl flex items-center justify-center text-<?php echo $financial_health_score >= 80 ? 'green' : ($financial_health_score >= 60 ? 'yellow' : 'red'); ?>-600">
+                                        <i class="fas fa-heartbeat"></i>
+                                    </div>
+                                </div>
+                                <div class="text-center mb-4">
+                                    <div class="inline-flex items-center justify-center relative">
+                                        <svg class="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                                            <circle cx="50" cy="50" r="40" stroke="#E5E7EB" stroke-width="8" fill="none"></circle>
+                                            <circle cx="50" cy="50" r="40" stroke="<?php echo $financial_health_score >= 80 ? '#10B981' : ($financial_health_score >= 60 ? '#F59E0B' : '#EF4444'); ?>" 
+                                                    stroke-width="8" fill="none" stroke-linecap="round" 
+                                                    stroke-dasharray="<?php echo 2 * pi() * 40; ?>" 
+                                                    stroke-dashoffset="<?php echo 2 * pi() * 40 * (1 - $financial_health_score/100); ?>">
+                                            </circle>
+                                        </svg>
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <span class="text-2xl font-bold text-gray-900"><?php echo number_format($financial_health_score, 0); ?></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-sm text-gray-600">
+                                        <?php 
+                                            if ($financial_health_score >= 80) {
+                                                echo "Excellent financial health!";
+                                            } elseif ($financial_health_score >= 60) {
+                                                echo "Good financial health";
+                                            } else {
+                                                echo "Needs improvement";
+                                            }
+                                        ?>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Insights Section -->
+                        <div class="mt-6">
+                            <h2 class="text-xl font-bold text-gray-900 mb-4">Action Insights</h2>
+                            <div class="bg-white rounded-2xl p-6 shadow-card border border-gray-100">
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <!-- Insight 1 -->
+                                    <div class="flex items-start space-x-4 p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-all duration-300">
+                                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 flex-shrink-0">
+                                            <i class="fas fa-lightbulb"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-gray-900 mb-1">Smart Savings Tip</h4>
+                                            <p class="text-sm text-gray-600">Consider setting up automatic transfers to your savings account on payday.</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Insight 2 -->
+                                    <div class="flex items-start space-x-4 p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-all duration-300">
+                                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 flex-shrink-0">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-gray-900 mb-1">Spending Alert</h4>
+                                            <p class="text-sm text-gray-600">Your dining expenses are 15% higher than last month. Consider cooking at home more often.</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Insight 3 -->
+                                    <div class="flex items-start space-x-4 p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-all duration-300">
+                                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 flex-shrink-0">
+                                            <i class="fas fa-bullseye"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-gray-900 mb-1">Goal Progress</h4>
+                                            <p class="text-sm text-gray-600">You're 65% towards your savings goal. Keep up the good work!</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions Section (Right - 1/3 width) -->
+                    <div class="w-full lg:w-1/3">
+                        <h2 class="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
                         <div class="bg-white rounded-2xl p-6 shadow-card border border-gray-100">
-                            <h3 class="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
                             <div class="grid grid-cols-2 gap-4">
                                 <button id="openSendModal" 
-                                        class="bg-primary text-white p-4 rounded-xl font-semibold hover:bg-primary-dark transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md animate-pulse-soft">
-                                    <i class="fas fa-paper-plane text-xl"></i>
-                                    <span class="text-sm">Send Money</span>
+                                        class="bg-primary text-white p-3 rounded-xl font-semibold hover:bg-primary-dark transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md">
+                                    <i class="fas fa-paper-plane text-lg"></i>
+                                    <span class="text-xs">Send Money</span>
                                 </button>
-                                <button class="bg-success text-white p-4 rounded-xl font-semibold hover:bg-green-700 transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md">
-                                    <i class="fas fa-plus text-xl"></i>
-                                    <span class="text-sm">Add Funds</span>
+                                <button class="bg-success text-white p-3 rounded-xl font-semibold hover:bg-green-700 transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md">
+                                    <i class="fas fa-plus text-lg"></i>
+                                    <span class="text-xs">Add Funds</span>
                                 </button>
-                                <button class="bg-warning text-white p-4 rounded-xl font-semibold hover:bg-yellow-700 transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md">
-                                    <i class="fas fa-download text-xl"></i>
-                                    <span class="text-sm">Withdraw</span>
+                                <button class="bg-warning text-white p-3 rounded-xl font-semibold hover:bg-yellow-700 transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md">
+                                    <i class="fas fa-download text-lg"></i>
+                                    <span class="text-xs">Withdraw</span>
                                 </button>
-                                <button class="bg-secondary text-white p-4 rounded-xl font-semibold hover:bg-gray-600 transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md">
-                                    <i class="fas fa-qrcode text-xl"></i>
-                                    <span class="text-sm">QR Pay</span>
+                                <button class="bg-secondary text-white p-3 rounded-xl font-semibold hover:bg-gray-600 transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md">
+                                    <i class="fas fa-qrcode text-lg"></i>
+                                    <span class="text-xs">QR Pay</span>
                                 </button>
+                            </div>
+                        </div>
+
+                        <!-- Recent Transactions -->
+                        <div class="mt-6">
+                            <h2 class="text-xl font-bold text-gray-900 mb-4">Recent Transactions</h2>
+                            <div class="bg-white rounded-2xl p-6 shadow-card border border-gray-100">
+                                <div class="space-y-4">
+                                    <?php if (count($recent_transactions) > 0): ?>
+                                        <?php foreach ($recent_transactions as $transaction): ?>
+                                            <div class="flex items-center justify-between p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-all duration-300">
+                                                <div class="flex items-center space-x-3">
+                                                    <div class="w-8 h-8 rounded-full flex items-center justify-center 
+                                                        <?php echo $transaction['type'] == 'sent' ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'; ?>">
+                                                        <i class="fas <?php echo $transaction['type'] == 'sent' ? 'fa-arrow-up' : 'fa-arrow-down'; ?> text-xs"></i>
+                                                    </div>
+                                                    <div>
+                                                        <p class="font-medium text-gray-900 text-sm">
+                                                            <?php echo $transaction['type'] == 'sent' ? 'To ' . htmlspecialchars($transaction['receiver_name']) : 'From ' . htmlspecialchars($transaction['sender_name']); ?>
+                                                        </p>
+                                                        <p class="text-xs text-gray-500"><?php echo date('M d', strtotime($transaction['created_at'])); ?></p>
+                                                    </div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <p class="font-medium text-sm <?php echo $transaction['type'] == 'sent' ? 'text-red-600' : 'text-green-600'; ?>">
+                                                        <?php echo $transaction['type'] == 'sent' ? '-' : '+'; ?> $<?php echo number_format($transaction['amount'], 2); ?>
+                                                    </p>
+                                                    <p class="text-xs text-gray-500"><?php echo ucfirst($transaction['type']); ?></p>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <p class="text-gray-500 text-center py-4 text-sm">No transactions found.</p>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="mt-4 text-center">
+                                    <a href="transactions.php" class="text-primary hover:text-primary-dark text-sm font-medium">View All Transactions</a>
+                                </div>
                             </div>
                         </div>
                     </div>
