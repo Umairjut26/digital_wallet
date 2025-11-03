@@ -271,47 +271,192 @@ $current_month_expenses = DB::queryFirstField("
 
         <!-- Main Content -->
         <div id="mainContent" class="flex-1 ml-64 transition-margin">
-            <!-- Top Header -->
-            <header class="bg-white shadow-soft border-b border-gray-200 sticky top-0 z-30">
-                <div class="flex justify-between items-center px-6 py-4">
-                    <div class="flex items-center space-x-4">
-                        <!-- Mobile hamburger menu -->
-                        <button id="mobileSidebarToggle" class="md:hidden text-gray-600 hover:text-primary transition-colors duration-300">
-                            <i class="fas fa-bars text-xl"></i>
-                        </button>
+            <!-- Mobile View: Only Balance and Quick Actions -->
+            <div class="block md:hidden space-y-6">
+                <!-- Balance Card for Mobile - Rounded only at bottom -->
+                <div class="gradient-bg text-white rounded-t-none rounded-b-2xl p-6 shadow-card relative overflow-hidden animate-fade-in w-full">
+                    <div class="absolute top-0 right-0 -mt-10 -mr-10 w-20 h-20 rounded-full bg-white bg-opacity-10"></div>
+                    <div class="relative z-10">
+                        <!-- JazzCash text above welcome -->
+                        <div class="mb-1">
+                            <h3 class="font-bold text-lg opacity-90">DigitalPay</h3>
+                        </div>
                         
-                        <!-- Desktop sidebar toggle -->
-                        <button id="desktopSidebarToggle" class="hidden md:flex text-gray-600 hover:text-primary transition-colors duration-300">
-                            <i class="fas fa-bars text-xl"></i>
-                        </button>
+                        <!-- User Name above balance -->
+                        <div class="mb-4">
+                            <h3 class="font-medium opacity-90">Welcome, <?php echo htmlspecialchars($user['name'] ?? 'User'); ?>!</h3>
+                        </div>
                         
-                        <div>
-                            <h1 class="text-2xl font-bold text-gray-900">Financial Dashboard</h1>
-                            <p class="text-gray-500 text-sm">Welcome back, <?php echo htmlspecialchars($user['name'] ?? 'User'); ?>! 👋</p>
+                        <div class="flex justify-between items-center">
+                            <!-- Left side - Balance info -->
+                            <div class="flex-1">
+                                <div class="text-2xl font-bold mb-2">$<?php echo number_format($balance, 2); ?></div>
+                                <p class="text-sm opacity-80">Available to spend</p>
+                            </div>
+                            
+                            <!-- Right side - Plus icon with Money text (centered and aligned to right) -->
+                            <div class="flex flex-col items-center justify-center space-y-1 bg-white/10 p-3 rounded-l-xl w-30">
+                                <div class="w-7 h-7 bg-white rounded-full flex items-center justify-center mb-1">
+                                    <i class="fas fa-plus text-blue-600 text-xs"></i>
+                                </div>
+                                <span class="text-xs text-white opacity-90">Money</span>
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Quick Actions for Mobile - 9 Actions with Text Below Icons -->
+                <div class="grid grid-cols-3 gap-4 mr-5 ml-5">
+                    <!-- Money Transfer -->
+                    <button id="openSendModalMobile" 
+                            class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+                        <i class="fas fa-exchange-alt text-xl text-primary"></i>
+                        <span class="text-xs text-gray-700">Money Transfer</span>
+                    </button>
                     
-                    <div class="flex items-center space-x-4">
-                        <!-- Notifications -->
-                        <button class="relative p-2 text-gray-600 hover:text-primary transition-colors duration-300">
-                            <i class="fas fa-bell text-xl"></i>
-                            <span class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>
-                        </button>
-                        
-                        <!-- Quick Actions -->
-                        <button onclick="window.location.href='logout.php'" 
-                                class="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-dark transition-all duration-300 flex items-center space-x-2 shadow-soft">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Logout</span>
+                    <!-- Bill and Payment -->
+                    <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+                        <i class="fas fa-file-invoice-dollar text-xl text-green-500"></i>
+                        <span class="text-xs text-gray-700">Bill & Payment</span>
+                    </button>
+                    
+                    <!-- Load & Packages -->
+                    <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+                        <i class="fas fa-mobile-alt text-xl text-purple-500"></i>
+                        <span class="text-xs text-gray-700">Load & Packages</span>
+                    </button>
+                    
+                    <!-- Banking & Finance -->
+                    <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+                        <i class="fas fa-university text-xl text-blue-500"></i>
+                        <span class="text-xs text-gray-700">Banking & Finance</span>
+                    </button>
+                    
+                    <!-- Marketplace -->
+                    <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+                        <i class="fas fa-store text-xl text-orange-500"></i>
+                        <span class="text-xs text-gray-700">Marketplace</span>
+                    </button>
+                    
+                    <!-- Govt Payments -->
+                    <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+                        <i class="fas fa-landmark text-xl text-red-500"></i>
+                        <span class="text-xs text-gray-700">Govt Payments</span>
+                    </button>
+                    
+                    <!-- Travel -->
+                    <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+                        <i class="fas fa-plane text-xl text-teal-500"></i>
+                        <span class="text-xs text-gray-700">Travel</span>
+                    </button>
+                    
+                    <!-- Other Payment & Services -->
+                    <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+                        <i class="fas fa-cogs text-xl text-indigo-500"></i>
+                        <span class="text-xs text-gray-700">Other Services</span>
+                    </button>
+                    
+                    <!-- More -->
+                    <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+                        <i class="fas fa-ellipsis-h text-xl text-gray-500"></i>
+                        <span class="text-xs text-gray-700">More</span>
+                    </button>
+                </div>
+
+                <!-- Promotional Banner -->
+                <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-5 text-white shadow-card relative overflow-hidden mx-4">
+                    <div class="absolute top-0 right-0 -mt-8 -mr-8 w-24 h-24 rounded-full bg-white bg-opacity-10"></div>
+                    <div class="relative z-10">
+                        <h3 class="font-bold text-lg mb-1">Special Offer!</h3>
+                        <p class="text-sm opacity-90 mb-3">Get 5% cashback on your next bill payment</p>
+                        <button class="bg-white text-purple-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90 transition-all duration-300">
+                            Claim Now
                         </button>
                     </div>
                 </div>
-            </header>
 
-            <!-- Main Content Area -->
-            <main class="p-6">
+                <!-- Bottom Navigation Menu - Home, Agent, Location, QR Code, Favourites, Promotions -->
+                <div class="bg-white rounded-2xl p-3 shadow-card border border-gray-100">
+                    <div class="flex justify-between items-center">
+                        <!-- Home -->
+                        <div class="flex flex-col items-center space-y-1">
+                            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
+                                <i class="fas fa-home text-sm"></i>
+                            </div>
+                            <span class="text-xs text-gray-700 font-medium">Home</span>
+                        </div>
+                        
+                        <!-- Agent with Location Icon -->
+                        <div class="flex flex-col items-center space-y-1">
+                            <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-green-600 relative">
+                                <i class="fas fa-map-marker-alt text-sm"></i>
+                            </div>
+                            <span class="text-xs text-gray-700 font-medium">Agent</span>
+                        </div>
+                        
+                        <!-- QR Code -->
+                        <div class="flex flex-col items-center space-y-1">
+                            <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600">
+                                <i class="fas fa-qrcode text-sm"></i>
+                            </div>
+                            <span class="text-xs text-gray-700 font-medium">QR Code</span>
+                        </div>
+                        
+                        <!-- Favourites -->
+                        <div class="flex flex-col items-center space-y-1">
+                            <div class="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center text-yellow-600">
+                                <i class="fas fa-star text-sm"></i>
+                            </div>
+                            <span class="text-xs text-gray-700 font-medium">Favourites</span>
+                        </div>
+                        
+                        <!-- Promotions -->
+                        <div class="flex flex-col items-center space-y-1">
+                            <div class="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center text-pink-600">
+                                <i class="fas fa-tag text-sm"></i>
+                            </div>
+                            <span class="text-xs text-gray-700 font-medium">Promotions</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desktop View: Full Dashboard -->
+            <div class="hidden md:block">
+                <!-- Top Header for Desktop -->
+                <header class="bg-white shadow-soft border-b border-gray-200 sticky top-0 z-30 mb-6">
+                    <div class="flex justify-between items-center px-6 py-4">
+                        <div class="flex items-center space-x-4">
+                            <!-- Desktop sidebar toggle -->
+                            <button id="desktopSidebarToggle" class="text-gray-600 hover:text-primary transition-colors duration-300">
+                                <i class="fas fa-bars text-xl"></i>
+                            </button>
+                            
+                            <div>
+                                <h1 class="text-2xl font-bold text-gray-900">Financial Dashboard</h1>
+                                <p class="text-gray-500 text-sm">Welcome back, <?php echo htmlspecialchars($user['name'] ?? 'User'); ?>! 👋</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4">
+                            <!-- Notifications -->
+                            <button class="relative p-2 text-gray-600 hover:text-primary transition-colors duration-300">
+                                <i class="fas fa-bell text-xl"></i>
+                                <span class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>
+                            </button>
+                            
+                            <!-- Quick Actions -->
+                            <button onclick="window.location.href='logout.php'" 
+                                    class="bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-dark transition-all duration-300 flex items-center space-x-2 shadow-soft">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
                 <!-- Quick Stats Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mr-5 ml-5">
                     <!-- Balance Card -->
                     <div class="gradient-bg text-white rounded-2xl p-6 shadow-card relative overflow-hidden animate-fade-in">
                         <div class="absolute top-0 right-0 -mt-10 -mr-10 w-20 h-20 rounded-full bg-white bg-opacity-10"></div>
@@ -377,10 +522,9 @@ $current_month_expenses = DB::queryFirstField("
                     </div>
                 </div>
 
-                <!-- Action Cards & Financial Insights -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <!-- Left Column - Quick Actions -->
-                    <div class="lg:col-span-1 space-y-6">
+                <!-- Quick Actions Only -->
+                <div class="flex justify-center">
+                    <div class="w-full max-w-2xl">
                         <!-- Quick Actions -->
                         <div class="bg-white rounded-2xl p-6 shadow-card border border-gray-100">
                             <h3 class="text-lg font-bold text-gray-900 mb-4">Quick Actions</h3>
@@ -404,230 +548,9 @@ $current_month_expenses = DB::queryFirstField("
                                 </button>
                             </div>
                         </div>
-
-                        <!-- Account Summary -->
-                        <div class="bg-white rounded-2xl p-6 shadow-card border border-gray-100">
-                            <h3 class="text-lg font-bold text-gray-900 mb-4">Account Summary</h3>
-                            <div class="space-y-4">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-gray-600">Account Number</span>
-                                    <span class="font-mono text-sm bg-gray-100 px-2 py-1 rounded"><?php echo htmlspecialchars($wallet['account_number'] ?? 'N/A'); ?></span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-gray-600">Member Since</span>
-                                    <span class="font-medium"><?php echo date('M Y', strtotime($user['created_at'] ?? 'now')); ?></span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-gray-600">Status</span>
-                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full font-medium">Verified</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-gray-600">This Month</span>
-                                    <span class="font-medium text-green-600">+$<?php echo number_format($current_month_income - $current_month_expenses, 2); ?></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Financial Tips -->
-                        <div class="bg-gradient-to-br from-purple-500 to-indigo-600 text-white rounded-2xl p-6 shadow-card relative overflow-hidden">
-                            <div class="absolute top-0 right-0 -mt-8 -mr-8 w-16 h-16 rounded-full bg-white bg-opacity-10"></div>
-                            <div class="relative z-10">
-                                <div class="flex items-center space-x-2 mb-3">
-                                    <i class="fas fa-lightbulb text-yellow-300"></i>
-                                    <h3 class="font-bold">Smart Tip</h3>
-                                </div>
-                                <p class="text-sm opacity-90 mb-4">
-                                    "Save 20% of every transaction for future investments. Small savings lead to big wealth!"
-                                </p>
-                                <div class="flex items-center text-xs opacity-80">
-                                    <i class="fas fa-clock mr-1"></i>
-                                    <span>Updated daily</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Column - Financial Insights & Analytics -->
-                    <div class="lg:col-span-2">
-                        <div class="bg-white rounded-2xl shadow-card border border-gray-100 overflow-hidden">
-                            <!-- Header -->
-                            <div class="border-b border-gray-200 px-6 py-4">
-                                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-                                    <div>
-                                        <h2 class="text-xl font-bold text-gray-900">Financial Insights</h2>
-                                        <p class="text-gray-500 text-sm mt-1">Smart analytics for your money management</p>
-                                    </div>
-                                    <button onclick="window.location.href='analytics.php'" 
-                                            class="bg-gray-100 text-gray-700 border border-gray-300 px-4 py-2 rounded-lg font-medium hover:bg-primary hover:text-white hover:border-primary transition-all duration-300 flex items-center space-x-2 shadow-soft mt-3 sm:mt-0">
-                                        <i class="fas fa-chart-bar"></i>
-                                        <span>Detailed Analytics</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Financial Metrics Grid -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-                                <!-- Spending Pattern -->
-                                <div class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-4 border border-blue-200">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <h3 class="font-semibold text-gray-900">Spending Pattern</h3>
-                                        <i class="fas fa-chart-pie text-blue-600"></i>
-                                    </div>
-                                    <div class="space-y-2">
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-sm text-gray-600">Essential Expenses</span>
-                                            <span class="font-medium text-gray-900">65%</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-blue-600 h-2 rounded-full" style="width: 65%"></div>
-                                        </div>
-                                        
-                                        <div class="flex justify-between items-center mt-3">
-                                            <span class="text-sm text-gray-600">Entertainment</span>
-                                            <span class="font-medium text-gray-900">20%</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-green-500 h-2 rounded-full" style="width: 20%"></div>
-                                        </div>
-                                        
-                                        <div class="flex justify-between items-center mt-3">
-                                            <span class="text-sm text-gray-600">Savings</span>
-                                            <span class="font-medium text-gray-900">15%</span>
-                                        </div>
-                                        <div class="w-full bg-gray-200 rounded-full h-2">
-                                            <div class="bg-purple-500 h-2 rounded-full" style="width: 15%"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Monthly Budget -->
-                                <div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-4 border border-green-200">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <h3 class="font-semibold text-gray-900">Monthly Budget</h3>
-                                        <i class="fas fa-wallet text-green-600"></i>
-                                    </div>
-                                    <div class="text-center mb-4">
-                                        <div class="text-2xl font-bold text-gray-900">$<?php echo number_format($balance * 0.7, 2); ?></div>
-                                        <p class="text-sm text-gray-600">of $<?php echo number_format($balance, 2); ?> available</p>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
-                                        <div class="bg-green-500 h-3 rounded-full" style="width: 70%"></div>
-                                    </div>
-                                    <div class="flex justify-between text-xs text-gray-600">
-                                        <span>Spent: 30%</span>
-                                        <span>Left: 70%</span>
-                                    </div>
-                                </div>
-
-                                <!-- Quick Stats -->
-                                <div class="bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-4 border border-purple-200">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <h3 class="font-semibold text-gray-900">This Month</h3>
-                                        <i class="fas fa-calendar-alt text-purple-600"></i>
-                                    </div>
-                                    <div class="space-y-3">
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-sm text-gray-600">Money In</span>
-                                            <span class="font-medium text-green-600">+$<?php echo number_format($current_month_income, 2); ?></span>
-                                        </div>
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-sm text-gray-600">Money Out</span>
-                                            <span class="font-medium text-red-600">-$<?php echo number_format($current_month_expenses, 2); ?></span>
-                                        </div>
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-sm text-gray-600">Net Flow</span>
-                                            <span class="font-medium <?php echo ($current_month_income - $current_month_expenses) >= 0 ? 'text-green-600' : 'text-red-600'; ?>">
-                                                $<?php echo number_format($current_month_income - $current_month_expenses, 2); ?>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Financial Health -->
-                                <div class="bg-gradient-to-br from-orange-50 to-amber-100 rounded-xl p-4 border border-orange-200">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <h3 class="font-semibold text-gray-900">Financial Health</h3>
-                                        <i class="fas fa-heartbeat text-orange-600"></i>
-                                    </div>
-                                    <div class="text-center mb-3">
-                                        <div class="text-2xl font-bold text-green-600">Good</div>
-                                        <p class="text-xs text-gray-600">Your finances are in great shape!</p>
-                                    </div>
-                                    <div class="flex justify-between text-xs text-gray-600">
-                                        <span>Savings Rate</span>
-                                        <span class="font-medium">25%</span>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
-                                        <div class="bg-green-500 h-2 rounded-full" style="width: 75%"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Actionable Insights -->
-                            <div class="border-t border-gray-200 px-6 py-4 bg-gray-50">
-                                <h4 class="font-semibold text-gray-900 mb-3">Actionable Insights</h4>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-primary transition-all duration-300 cursor-pointer">
-                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600">
-                                            <i class="fas fa-piggy-bank"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium text-gray-900">Save $<?php echo number_format($balance * 0.2, 2); ?> this month</p>
-                                            <p class="text-xs text-gray-600">Based on your spending pattern</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:border-primary transition-all duration-300 cursor-pointer">
-                                        <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600">
-                                            <i class="fas fa-chart-line"></i>
-                                        </div>
-                                        <div>
-                                            <p class="font-medium text-gray-900">Income increased by 15%</p>
-                                            <p class="text-xs text-gray-600">Compared to last month</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Additional Info Cards -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                            <!-- Security Status -->
-                            <div class="bg-white rounded-2xl p-6 shadow-card border border-gray-100">
-                                <div class="flex items-center justify-between mb-4">
-                                    <h3 class="font-bold text-gray-900">Security Status</h3>
-                                    <i class="fas fa-shield-alt text-green-500"></i>
-                                </div>
-                                <div class="space-y-3">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-sm text-gray-600">2FA Enabled</span>
-                                        <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
-                                    </div>
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-sm text-gray-600">Biometric Login</span>
-                                        <span class="text-green-500"><i class="fas fa-check-circle"></i></span>
-                                    </div>
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-sm text-gray-600">Last Login</span>
-                                        <span class="text-sm text-gray-500">Just now</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Support Card -->
-                            <div class="bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl p-6 shadow-card relative overflow-hidden">
-                                <div class="absolute top-0 right-0 -mt-10 -mr-10 w-20 h-20 rounded-full bg-white bg-opacity-10"></div>
-                                <div class="relative z-10">
-                                    <h3 class="font-bold mb-2">Need Help?</h3>
-                                    <p class="text-sm opacity-90 mb-4">Our support team is here to help you 24/7</p>
-                                    <button class="bg-white text-primary px-4 py-2 rounded-lg font-medium hover:bg-opacity-90 transition-all duration-300">
-                                        Contact Support
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     </div>
 
@@ -717,13 +640,19 @@ $current_month_expenses = DB::queryFirstField("
             document.body.style.overflow = ''; // Restore scrolling
         }
 
-        // Modal functionality
+        // Modal functionality for desktop
         const openModalBtn = document.getElementById('openSendModal');
         const closeModalBtn = document.getElementById('closeModal');
         const modal = document.getElementById('sendModal');
         
         if (openModalBtn) {
             openModalBtn.addEventListener('click', () => modal.classList.remove('hidden'));
+        }
+        
+        // Modal functionality for mobile
+        const openModalBtnMobile = document.getElementById('openSendModalMobile');
+        if (openModalBtnMobile) {
+            openModalBtnMobile.addEventListener('click', () => modal.classList.remove('hidden'));
         }
         
         closeModalBtn.addEventListener('click', () => {
@@ -785,41 +714,6 @@ $current_month_expenses = DB::queryFirstField("
                 message.innerHTML = `<div class="bg-red-50 text-red-600 p-3 rounded-lg border border-red-200 text-center">Error: ${err}</div>`;
             }
         });
-
-        // Add hover effects to actionable insights
-        document.querySelectorAll('.cursor-pointer').forEach(item => {
-            item.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-2px)';
-                this.style.boxShadow = '0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
-            });
-            
-            item.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = '';
-            });
-        });
-
-        // Animate numbers on page load
-        function animateValue(element, start, end, duration) {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                const value = Math.floor(progress * (end - start) + start);
-                element.textContent = value.toLocaleString();
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
-            };
-            window.requestAnimationFrame(step);
-        }
-
-        // Animate transaction count
-        // const transactionCount = document.querySelector('.text-2xl.font-bold.text-gray-900');
-        // if (transactionCount) {
-        //     const count = parseInt(transactionCount.textContent);
-        //     animateValue(transactionCount, 0 , count, 2000);
-        // }
     </script>
 
 </body>
