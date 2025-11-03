@@ -241,216 +241,202 @@ $spending_categories = [
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Mobile Overlay -->
-    <div id="mobileOverlay" class="md:hidden"></div>
-
-    <!-- Main Container -->
-    <div class="flex min-h-screen">
-        <!-- Sidebar -->
-        <div id="sidebar" class="sidebar-gradient text-white fixed h-full z-40 w-64 transition-width md:transform-none">
-            <div class="p-4 h-full flex flex-col">
-                <!-- Logo -->
-                <div class="flex items-center space-x-3 mb-8">
-                    <div class="w-10 h-10 bg-gradient-to-r from-primary to-primary-light rounded-xl flex items-center justify-center shadow-md">
-                        <i class="fas fa-wallet text-white text-lg"></i>
-                    </div>
-                    <span class="text-xl font-bold whitespace-nowrap">DigitalPay</span>
-                </div>
-                
-                <!-- Navigation -->
-                <nav class="space-y-2 flex-1">
-                    <a href="dashboard.php" class="flex items-center space-x-3 bg-primary bg-opacity-20 px-4 py-3 rounded-xl font-medium group">
-                        <i class="fas fa-home text-lg w-6 text-center"></i>
-                        <span class="whitespace-nowrap group-hover:opacity-100 transition-opacity">Dashboard</span>
-                    </a>
-                    <a href="transactions.php" class="flex items-center space-x-3 px-4 py-3 rounded-xl font-medium hover:bg-white hover:bg-opacity-10 transition-all duration-300 group">
-                        <i class="fas fa-exchange-alt text-lg w-6 text-center"></i>
-                        <span class="whitespace-nowrap group-hover:opacity-100 transition-opacity">Transactions</span>
-                    </a>
-                    <a href="analytics.php" class="flex items-center space-x-3 px-4 py-3 rounded-xl font-medium hover:bg-white hover:bg-opacity-10 transition-all duration-300 group">
-                        <i class="fas fa-chart-line text-lg w-6 text-center"></i>
-                        <span class="whitespace-nowrap group-hover:opacity-100 transition-opacity">Analytics</span>
-                    </a>
-                    <a href="settings.php" class="flex items-center space-x-3 px-4 py-3 rounded-xl font-medium hover:bg-white hover:bg-opacity-10 transition-all duration-300 group">
-                        <i class="fas fa-cog text-lg w-6 text-center"></i>
-                        <span class="whitespace-nowrap group-hover:opacity-100 transition-opacity">Settings</span>
-                    </a>
-                </nav>
-                
-                <!-- User Profile -->
-                <div class="border-t border-gray-600 pt-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-semibold">
-                            <?php 
-                                $initials = '';
-                                if (isset($user['name'])) {
-                                    $nameParts = explode(' ', $user['name']);
-                                    foreach ($nameParts as $part) {
-                                        $initials .= strtoupper(substr($part, 0, 1));
-                                    }
-                                }
-                                echo substr($initials, 0, 2);
-                            ?>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="font-medium text-sm truncate"><?php echo htmlspecialchars($user['name'] ?? 'User'); ?></p>
-                            <p class="text-xs text-gray-300 truncate"><?php echo htmlspecialchars($user['email'] ?? 'user@example.com'); ?></p>
-                        </div>
-                    </div>
-                </div>
+<!-- Mobile View: Only Balance and Quick Actions -->
+<!-- Mobile View: Only Balance and Quick Actions -->
+<!-- Mobile View: Only Balance and Quick Actions -->
+<!-- Mobile View: Only Balance and Quick Actions -->
+<div class="block md:hidden pb-20"> <!-- Added padding-bottom to account for fixed footer -->
+    <!-- Mobile Header with DW Logo, Search, QR Code and Notification -->
+    <div class="bg-white shadow-soft border-b border-gray-200 sticky top-0 z-30">
+    <div class="flex items-center justify-between px-4 py-3">
+        <!-- Left: BW Logo in Circle -->
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-gradient-to-r from-primary to-primary-light rounded-full flex items-center justify-center shadow-md">
+                <span class="text-white font-bold text-sm">BW</span>
             </div>
         </div>
-
-        <!-- Main Content -->
-        <div id="mainContent" class="flex-1 ml-64 transition-margin">
-            <!-- Mobile View: Only Balance and Quick Actions -->
-            <div class="block md:hidden space-y-6">
-                <!-- Balance Card for Mobile - Rounded only at bottom -->
-                <div class="gradient-bg text-white rounded-t-none rounded-b-2xl p-6 shadow-card relative overflow-hidden animate-fade-in w-full">
-                    <div class="absolute top-0 right-0 -mt-10 -mr-10 w-20 h-20 rounded-full bg-white bg-opacity-10"></div>
-                    <div class="relative z-10">
-                        <!-- JazzCash text above welcome -->
-                        <div class="mb-1">
-                            <h3 class="font-bold text-lg opacity-90">DigitalPay</h3>
-                        </div>
-                        
-                        <!-- User Name above balance -->
-                        <div class="mb-4">
-                            <h3 class="font-medium opacity-90">Welcome, <?php echo htmlspecialchars($user['name'] ?? 'User'); ?>!</h3>
-                        </div>
-                        
-                        <div class="flex justify-between items-center">
-                            <!-- Left side - Balance info -->
-                            <div class="flex-1">
-                                <div class="text-2xl font-bold mb-2">$<?php echo number_format($balance, 2); ?></div>
-                                <p class="text-sm opacity-80">Available to spend</p>
-                            </div>
-                            
-                            <!-- Right side - Plus icon with Money text (centered and aligned to right) -->
-                            <div class="flex flex-col items-center justify-center space-y-1 bg-white/10 p-3 rounded-l-xl w-30">
-                                <div class="w-7 h-7 bg-white rounded-full flex items-center justify-center mb-1">
-                                    <i class="fas fa-plus text-blue-600 text-xs"></i>
-                                </div>
-                                <span class="text-xs text-white opacity-90">Money</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quick Actions for Mobile - 9 Actions with Text Below Icons -->
-                <div class="grid grid-cols-3 gap-4 mr-5 ml-5">
-                    <!-- Money Transfer -->
-                    <button id="openSendModalMobile" 
-                            class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
-                        <i class="fas fa-exchange-alt text-xl text-primary"></i>
-                        <span class="text-xs text-gray-700">Money Transfer</span>
-                    </button>
-                    
-                    <!-- Bill and Payment -->
-                    <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
-                        <i class="fas fa-file-invoice-dollar text-xl text-green-500"></i>
-                        <span class="text-xs text-gray-700">Bill & Payment</span>
-                    </button>
-                    
-                    <!-- Load & Packages -->
-                    <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
-                        <i class="fas fa-mobile-alt text-xl text-purple-500"></i>
-                        <span class="text-xs text-gray-700">Load & Packages</span>
-                    </button>
-                    
-                    <!-- Banking & Finance -->
-                    <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
-                        <i class="fas fa-university text-xl text-blue-500"></i>
-                        <span class="text-xs text-gray-700">Banking & Finance</span>
-                    </button>
-                    
-                    <!-- Marketplace -->
-                    <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
-                        <i class="fas fa-store text-xl text-orange-500"></i>
-                        <span class="text-xs text-gray-700">Marketplace</span>
-                    </button>
-                    
-                    <!-- Govt Payments -->
-                    <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
-                        <i class="fas fa-landmark text-xl text-red-500"></i>
-                        <span class="text-xs text-gray-700">Govt Payments</span>
-                    </button>
-                    
-                    <!-- Travel -->
-                    <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
-                        <i class="fas fa-plane text-xl text-teal-500"></i>
-                        <span class="text-xs text-gray-700">Travel</span>
-                    </button>
-                    
-                    <!-- Other Payment & Services -->
-                    <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
-                        <i class="fas fa-cogs text-xl text-indigo-500"></i>
-                        <span class="text-xs text-gray-700">Other Services</span>
-                    </button>
-                    
-                    <!-- More -->
-                    <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
-                        <i class="fas fa-ellipsis-h text-xl text-gray-500"></i>
-                        <span class="text-xs text-gray-700">More</span>
-                    </button>
-                </div>
-
-                <!-- Promotional Banner -->
-                <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-5 text-white shadow-card relative overflow-hidden mx-4">
-                    <div class="absolute top-0 right-0 -mt-8 -mr-8 w-24 h-24 rounded-full bg-white bg-opacity-10"></div>
-                    <div class="relative z-10">
-                        <h3 class="font-bold text-lg mb-1">Special Offer!</h3>
-                        <p class="text-sm opacity-90 mb-3">Get 5% cashback on your next bill payment</p>
-                        <button class="bg-white text-purple-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90 transition-all duration-300">
-                            Claim Now
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Bottom Navigation Menu - Home, Agent, Location, QR Code, Favourites, Promotions -->
-                <div class="bg-white rounded-2xl p-3 shadow-card border border-gray-100">
-                    <div class="flex justify-between items-center">
-                        <!-- Home -->
-                        <div class="flex flex-col items-center space-y-1">
-                            <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
-                                <i class="fas fa-home text-sm"></i>
-                            </div>
-                            <span class="text-xs text-gray-700 font-medium">Home</span>
-                        </div>
-                        
-                        <!-- Agent with Location Icon -->
-                        <div class="flex flex-col items-center space-y-1">
-                            <div class="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-green-600 relative">
-                                <i class="fas fa-map-marker-alt text-sm"></i>
-                            </div>
-                            <span class="text-xs text-gray-700 font-medium">Agent</span>
-                        </div>
-                        
-                        <!-- QR Code -->
-                        <div class="flex flex-col items-center space-y-1">
-                            <div class="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600">
-                                <i class="fas fa-qrcode text-sm"></i>
-                            </div>
-                            <span class="text-xs text-gray-700 font-medium">QR Code</span>
-                        </div>
-                        
-                        <!-- Favourites -->
-                        <div class="flex flex-col items-center space-y-1">
-                            <div class="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center text-yellow-600">
-                                <i class="fas fa-star text-sm"></i>
-                            </div>
-                            <span class="text-xs text-gray-700 font-medium">Favourites</span>
-                        </div>
-                        
-                        <!-- Promotions -->
-                        <div class="flex flex-col items-center space-y-1">
-                            <div class="w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center text-pink-600">
-                                <i class="fas fa-tag text-sm"></i>
-                            </div>
-                            <span class="text-xs text-gray-700 font-medium">Promotions</span>
-                        </div>
-                    </div>
-                </div>
+        
+        <!-- Middle: Search Field -->
+        <div class="flex-1 mx-3">
+            <div class="relative">
+                <input type="text" placeholder="Search..." 
+                       class="w-full bg-gray-100 rounded-full py-2 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+                <i class="fas fa-search absolute right-3 top-2.5 text-gray-400 text-sm"></i>
             </div>
+        </div>
+        
+        <!-- Right: QR Code and Notification Icons -->
+        <div class="flex items-center space-x-5">
+            <!-- QR Code Icon -->
+            <button class="text-gray-600 hover:text-primary transition-colors duration-300">
+                <i class="fas fa-qrcode text-xl"></i>
+            </button>
+            
+            <!-- Notification Icon -->
+            <button class="text-gray-600 hover:text-primary transition-colors duration-300 relative">
+                <i class="fas fa-bell text-xl"></i>
+                <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+        </div>
+    </div>
+</div>
+
+    <!-- Balance Card for Mobile - Now directly under header without space -->
+   <div class="gradient-bg text-white rounded-t-none rounded-b-2xl p-6 shadow-card relative overflow-hidden animate-fade-in w-full">
+    <div class="absolute top-0 right-0 -mt-10 -mr-10 w-20 h-20 rounded-full bg-white bg-opacity-10"></div>
+    <div class="relative z-10">
+        <!-- BixiWallet text with wallet icon on the right -->
+        <div class="flex justify-between items-center mb-2">
+            <h3 class="font-bold text-lg opacity-90">BixiWallet</h3>
+            <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <i class="fas fa-wallet text-white text-xl"></i>
+            </div>
+        </div>
+        
+        <!-- Welcome text -->
+        <div class="mb-4">
+            <h3 class="font-medium opacity-90">Welcome, <?php echo htmlspecialchars($user['name'] ?? 'User'); ?>!</h3>
+        </div>
+        
+        <div class="flex justify-between items-center">
+            <!-- Left side - Balance info with eye icon -->
+            <div class="flex-1">
+                <div class="flex items-center space-x-2 mb-2">
+                    <div class="text-2xl font-bold balance-amount">$<?php echo number_format($balance, 2); ?></div>
+                    <button id="toggleBalance" class="text-white opacity-80 hover:opacity-100 transition-opacity">
+                        <i class="fas fa-eye-slash text-1xl"></i>
+                    </button>
+                </div>
+                <p class="text-sm opacity-80">Available to spend</p>
+            </div>
+            
+            <!-- Right side - Plus icon with Money text (centered and aligned to right) -->
+            <div class="flex flex-col items-center justify-center space-y-1 bg-white/15 p-3 rounded-l-xl w-25 h-18">
+                <div class="w-7 h-7 bg-white/90 rounded-full flex items-center justify-center mb-1">
+                    <i class="fas fa-plus text-primary text-xs font-bold"></i>
+                </div>
+                <span class="text-xs text-white font-medium">Add Money</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Rest of the mobile content with proper spacing -->
+    <!-- Quick Actions for Mobile - 9 Actions with Text Below Icons -->
+    <div class="grid grid-cols-3 gap-4 mr-5 ml-5 mt-6">
+        <!-- Money Transfer -->
+        <button id="openSendModalMobile" 
+                class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+            <i class="fas fa-paper-plane text-xl text-primary"></i>
+            <span class="text-xs text-gray-700">Money Transfer</span>
+        </button>
+        
+        <!-- Add Money -->
+        <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+            <i class="fas fa-plus text-green-500 text-lg mb-1"></i>
+            <span class="text-xs text-gray-700">Add Money</span>
+        </button>
+        
+        <!-- Mobile Top Up -->
+        <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+            <i class="fas fa-university text-xl text-purple-500"></i>
+            <span class="text-xs text-gray-700">Withdraw</span>
+        </button>
+        
+        <!-- QuickPay -->
+        <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+            <i class="fas fa-mobile-alt text-xl text-purple-500"></i>
+            <span class="text-xs text-gray-700">Mobile Top Up</span>
+        </button>
+        
+        <!-- Bills -->
+        <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+            <i class="fas fa-qrcode text-xl text-blue-500"></i>
+            <span class="text-xs text-gray-700">QuickPay</span>
+        </button>
+        
+        <!-- Loan -->
+        <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+            <i class="fas fa-hand-holding-dollar text-xl text-red-500"></i>
+            <span class="text-xs text-gray-700">Loan</span>
+        </button>
+        
+        <!-- Education -->
+        <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+            <i class="fas fa-file-invoice text-xl text-orange-500"></i>
+            <span class="text-xs text-gray-700">Bills</span>
+        </button>
+        
+        <!-- Other Services -->
+        <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+            <i class="fas fa-cogs text-xl text-indigo-500"></i>
+            <span class="text-xs text-gray-700">Other Services</span>
+        </button>
+        
+        <!-- More -->
+        <button class="bg-white p-4 rounded-xl font-semibold transition-all duration-300 flex flex-col items-center justify-center space-y-2 shadow-soft hover:shadow-md border border-gray-100">
+            <i class="fas fa-ellipsis-h text-xl text-gray-500"></i>
+            <span class="text-xs text-gray-700">More</span>
+        </button>
+    </div>
+
+    <!-- Promotional Banner -->
+    <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl p-5 text-white shadow-card relative overflow-hidden mx-4 mt-6 mb-6">
+    <div class="absolute top-0 right-0 -mt-8 -mr-8 w-24 h-24 rounded-full bg-white bg-opacity-10"></div>
+    <div class="relative z-10">
+        <h3 class="font-bold text-lg mb-1">Special Offer!</h3>
+        <p class="text-sm opacity-90 mb-3">Get 5% cashback on your next bill payment</p>
+        <button class="bg-white text-purple-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-opacity-90 transition-all duration-300">
+            Claim Now
+        </button>
+    </div>
+</div>
+
+    <!-- Bottom Navigation Menu - Full Width -->
+    <div class="bg-white border-t border-gray-200 fixed bottom-0 left-0 right-0 p-3 shadow-card z-40">
+        <div class="flex justify-between items-center">
+            <!-- Home -->
+            <div class="flex flex-col items-center space-y-1">
+                <div class="w-10 h-10  rounded-xl flex items-center justify-center text-gray-600">
+                    <i class="fas fa-home text-xl"></i>
+                </div>
+                <span class="text-xs text-gray-700 font-medium">Home</span>
+            </div>
+            
+            <!-- MyWallet -->
+            <div class="flex flex-col items-center space-y-1">
+                <div class="w-10 h-10  rounded-xl flex items-center justify-center text-gray-600 relative">
+                    <i class="fas fa-wallet text-xl"></i>
+                </div>
+                <span class="text-xs text-gray-700 font-medium">MyWallet</span>
+            </div>
+            
+            <!-- QR Code -->
+            <div class="flex flex-col items-center space-y-1">
+                <div class="w-10 h-10  rounded-xl flex items-center justify-center text-gray-600">
+                    <i class="fas fa-qrcode text-3xl"></i>
+                </div>
+                <span class="text-xs text-gray-700 font-medium">QR Code</span>
+            </div>
+            
+            <!-- Transactions -->
+            <div class="flex flex-col items-center space-y-1">
+                <div class="w-10 h-10  rounded-xl flex items-center justify-center text-gray-600">
+                    <i class="fas fa-exchange-alt text-xl"></i>
+                </div>
+                <span class="text-xs text-gray-700 font-medium">Transactions</span>
+            </div>
+            
+            <!-- Promotions -->
+            <div class="flex flex-col items-center space-y-1">
+                <div class="w-10 h-10  rounded-xl flex items-center justify-center text-gray-600">
+                    <i class="fas fa-tag text-xl"></i>
+                </div>
+                <span class="text-xs text-gray-700 font-medium">Promotions</span>
+            </div>
+        </div>
+    </div>
+</div>
 
             <!-- Desktop View: Full Dashboard -->
             <div class="hidden md:block">
@@ -951,7 +937,32 @@ $spending_categories = [
                 message.innerHTML = `<div class="bg-red-50 text-red-600 p-3 rounded-lg border border-red-200 text-center">Error: ${err}</div>`;
             }
         });
+
+
+
+        
     </script>
+
+    <script>
+    // Balance visibility toggle functionality
+    const toggleBalanceBtn = document.getElementById('toggleBalance');
+    const balanceAmount = document.querySelector('.balance-amount');
+    let balanceVisible = true;
+    
+    if (toggleBalanceBtn && balanceAmount) {
+        toggleBalanceBtn.addEventListener('click', () => {
+            balanceVisible = !balanceVisible;
+            
+            if (balanceVisible) {
+                balanceAmount.textContent = '$<?php echo number_format($balance, 2); ?>';
+                toggleBalanceBtn.innerHTML = '<i class="fas fa-eye"></i>';
+            } else {
+                balanceAmount.textContent = '****';
+                toggleBalanceBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            }
+        });
+    }
+</script>
 
 </body>
 </html>
